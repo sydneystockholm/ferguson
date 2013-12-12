@@ -83,4 +83,23 @@ describe('Filenames', function () {
             '<img src="asset-74be16-image.png" alt="Foo &amp; bar" />');
     });
 
+    it('should prefix the asset URLs with a custom prefix', function () {
+        var manager = setup('simple-assets', { hashLength: 6 });
+        assert.equal(manager.asset('image.png', { prefix: 'http://cdn.foo.com/' }),
+            '<img src="http://cdn.foo.com/asset-74be16-image.png" />');
+    });
+
+    it('should prefix the asset URLs with the path prefix from options', function () {
+        var manager = setup('simple-assets', {
+            hashLength: 6
+          , servePrefix: '/static'
+        });
+        assert.equal(manager.asset('image.png'),
+            '<img src="/static/asset-74be16-image.png" />');
+        assert.equal(manager.asset('image.png', { prefix: 'http://cdn.foo.com/' }),
+            '<img src="http://cdn.foo.com/static/asset-74be16-image.png" />');
+        assert.equal(manager.asset('image.png', { prefix: 'http://cdn.foo.com' }),
+            '<img src="http://cdn.foo.com/static/asset-74be16-image.png" />');
+    });
+
 });
