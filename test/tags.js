@@ -63,4 +63,18 @@ describe('Filenames', function () {
         assert.equal(manager.asset('robots.txt'), '<custom src="asset-74be16-robots.txt" />');
     });
 
+    it('should output tags for icons', function () {
+        var manager = setup('simple-assets', { hashLength: 6 });
+        assert.equal(manager.asset('favicon.ico'),
+            '<link href="asset-74be16-favicon.ico" rel="shortcut icon" />');
+    });
+
+    it('should output tags for images', function () {
+        var manager = setup('simple-assets', { hashLength: 6 });
+        assert.equal(manager.asset('image.png'),
+            '<img src="asset-74be16-image.png" />');
+        assert.equal(manager.asset('image.gif'),
+            '<img src="asset-74be16-image.gif" />');
+    });
+
 });
