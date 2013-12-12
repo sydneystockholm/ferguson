@@ -59,4 +59,14 @@ describe('Filenames', function () {
         assert.equal(manager.assetFilename('ie8.js'), expected);
     });
 
+    it('should ignore duplicates in the list of assets in a bundle', function () {
+        var manager = setup('simple-assets');
+        var tag = manager.assetFilename('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
+        assert.equal(tag, 'asset-b5d5d67465f661c1a12da394e502b391-ie8.js');
+        tag = manager.assetFilename('ie8.js', { include: [
+            'respond.js', 'html5shiv.js', 'respond.js', 'respond.js', 'html5shiv.js'
+        ] });
+        assert.equal(tag, 'asset-b5d5d67465f661c1a12da394e502b391-ie8.js');
+    });
+
 });
