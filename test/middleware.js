@@ -136,7 +136,7 @@ describe('Middleware', function () {
 
     it('should serve static assets from a configurable prefix', function (done) {
         var manager = new AssetManager(path.join(fixtures, 'simple-assets'), {
-            prefix: '/static'
+            servePrefix: '/static'
         });
         mocks(function (app, request, next) {
             manager.init(app);
