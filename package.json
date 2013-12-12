@@ -20,6 +20,7 @@
   "devDependencies": {
     "mocha": "latest",
     "istanbul": "latest",
-    "jshint": "latest"
+    "jshint": "latest",
+    "rimraf": "latest"
   }
 }
