@@ -94,4 +94,16 @@ describe('Filenames', function () {
         assert.equal(tag, 'asset-c919d0e16fda90c516ca98655b7b6222-all-c.js');
     });
 
+    it('should emit an error when a glob pattern doesn\'t match any assets', function () {
+        var manager = setup('simple-assets')
+          , had_error = false;
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'No assets matched the pattern "*.min.js" ' +
+                'when building asset "libraries.js"');
+            had_error = true;
+        });
+        manager.assetFilename('libraries.js', { include: '*.min.js' });
+        assert(had_error, 'Expected an error');
+    });
+
 });
