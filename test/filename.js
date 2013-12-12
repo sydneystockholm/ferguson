@@ -29,4 +29,9 @@ describe('Filenames', function () {
         assert.equal(manager.asset('jquery.js'), 'asset-82470a0982f62504a81cf60128ff61a2-jquery.js');
     });
 
+    it('should allow for a configurable hash length', function () {
+        var manager = setup('simple-assets', { hashLength: 8 });
+        assert.equal(manager.asset('jquery.js'), 'asset-82470a09-jquery.js');
+    });
+
 });
