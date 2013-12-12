@@ -9,7 +9,7 @@ var AssetManager = require('../lib/assets').AssetManager
 
 describe('Indexing', function () {
 
-    it('should find all assets in the specified directory', function () {
+    it('should find all assets in the specified static assets directory', function () {
         var manager = new AssetManager(path.join(fixtures, 'walk-directory'));
         var files = manager.getAssets().map(function (file) {
             return file.name;
@@ -48,7 +48,7 @@ describe('Indexing', function () {
         });
     });
 
-    it('should hash the contents of assets and cache the results in a manifest', function () {
+    it('should hash the contents of each asset and cache the results in a manifest', function () {
         rimraf.sync(temp);
         fs.mkdirSync(temp);
         fs.writeFileSync(path.join(temp, 'jquery.js'), 'var foo');
@@ -65,7 +65,7 @@ describe('Indexing', function () {
         assert.equal(manager.assets['jquery.js'].hash, '6535b4d330f12366c3f7e50afd63dd04');
     });
 
-    it('should recover from an invalid manifest', function () {
+    it('should recover from an invalid manifest file', function () {
         rimraf.sync(temp);
         fs.mkdirSync(temp);
         fs.writeFileSync(path.join(temp, 'jquery.js'), 'var foo');
@@ -93,7 +93,7 @@ describe('Indexing', function () {
         assert(had_error, 'Expected an error');
     });
 
-    it('should allow for the file hash to be set via options', function () {
+    it('should let users configure the hash algorithm', function () {
         rimraf.sync(temp);
         fs.mkdirSync(temp);
         fs.writeFileSync(path.join(temp, 'jquery.js'), 'var foo');
