@@ -22,6 +22,7 @@
     "istanbul": "latest",
     "jshint": "latest",
     "rimraf": "latest",
-    "express": "latest"
+    "express": "latest",
+    "nunjucks": "latest"
   }
 }
