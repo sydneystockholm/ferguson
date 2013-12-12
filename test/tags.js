@@ -77,4 +77,10 @@ describe('Filenames', function () {
             '<img src="asset-74be16-image.gif" />');
     });
 
+    it('should escape certain chars in attribute values', function () {
+        var manager = setup('simple-assets', { hashLength: 6 });
+        assert.equal(manager.asset('image.png', { attributes: { alt: 'Foo & bar' }}),
+            '<img src="asset-74be16-image.png" alt="Foo &amp; bar" />');
+    });
+
 });
