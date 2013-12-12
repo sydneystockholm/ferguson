@@ -13,9 +13,11 @@ function mocks(callback) {
       , port_ = port++;
     app.use(function (request, response, next) {
         response.render = function (template) {
-            response.send(nunjucks.renderString(template, {
-                asset: response.locals.asset
-            }));
+            var locals = {};
+            for (var key in response.locals) {
+                locals[key] = response.locals[key];
+            }
+            response.send(nunjucks.renderString(template, locals));
         };
         next();
     });
@@ -69,6 +71,27 @@ describe('Middleware', function () {
             manager.init(app);
             app.get('/', function (request, response) {
                 response.render('{{ asset("foo.css") }}');
+            });
+            request('/', function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body, 'foo');
+                next(done);
+            });
+        });
+    });
+
+    it('should let users modify the view helper name', function (done) {
+        var manager = new AssetManager(path.join(fixtures, 'empty'), {
+            viewHelper: 'foobarbaz'
+        });
+        manager.asset = function () {
+            return 'foo';
+        };
+        mocks(function (app, request, next) {
+            manager.init(app);
+            app.get('/', function (request, response) {
+                response.render('{{ foobarbaz("foo.css") }}');
             });
             request('/', function (err, response, body) {
                 assert.ifError(err);
