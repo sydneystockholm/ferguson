@@ -47,7 +47,7 @@ describe('Middleware', function () {
     it('should provide express middleware', function (done) {
         var manager = new AssetManager(path.join(fixtures, 'empty'));
         mocks(function (app, request, next) {
-            app.use(manager.middleware());
+            manager.init(app);
             app.get('/foo.txt', function (request, response) {
                 response.send('foo');
             });
@@ -60,23 +60,20 @@ describe('Middleware', function () {
         });
     });
 
-    it('should serve the same middleware function on each invocation of middleware()', function () {
-        var manager = new AssetManager(path.join(fixtures, 'empty'))
-          , middleware = manager.middleware();
-        middleware._id_ = 'foo';
-        assert.equal(manager.middleware()._id_, 'foo');
-    });
-
     it('should provide a view helper for defining assets', function (done) {
         var manager = new AssetManager(path.join(fixtures, 'empty'));
+        manager.asset = function () {
+            return 'foo';
+        };
         mocks(function (app, request, next) {
-            app.use(manager.middleware());
+            manager.init(app);
             app.get('/', function (request, response) {
                 response.render('{{ asset("foo.css") }}');
             });
             request('/', function (err, response, body) {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 200);
+                assert.equal(body, 'foo');
                 next(done);
             });
         });
