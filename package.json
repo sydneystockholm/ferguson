@@ -21,6 +21,7 @@
     "mocha": "latest",
     "istanbul": "latest",
     "jshint": "latest",
-    "rimraf": "latest"
+    "rimraf": "latest",
+    "express": "latest"
   }
 }
