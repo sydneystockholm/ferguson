@@ -7,7 +7,7 @@ var AssetManager = require('../lib/assets').AssetManager
   , fixtures = path.join(__dirname, 'fixtures')
   , temp = path.join(__dirname, 'tmp');
 
-describe('Assets', function () {
+describe('Indexing', function () {
 
     it('should find all assets in the specified directory', function () {
         var manager = new AssetManager(path.join(fixtures, 'walk-directory'));
