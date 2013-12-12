@@ -12,12 +12,12 @@ function setup(directory, options) {
     return manager;
 }
 
-describe('Filenames', function () {
+describe('Tags', function () {
 
     it('should generate script tags for javascript assets', function () {
         var manager = setup('simple-assets', { hashLength: 6 });
         assert.equal(manager.asset('jquery.js'),
-            '<script src="asset-82470a-jquery.js" type="text/javascript"></script>');
+            '<script src="/asset-82470a-jquery.js" type="text/javascript"></script>');
     });
 
     it('should let users specify additional tag attributes', function () {
@@ -26,20 +26,20 @@ describe('Filenames', function () {
             type: 'text/x-template'
           , id: 'my-template'
         }});
-        assert.equal(tag, '<script src="asset-82470a-jquery.js" id="my-template" ' +
+        assert.equal(tag, '<script src="/asset-82470a-jquery.js" id="my-template" ' +
             'type="text/x-template"></script>');
     });
 
     it('should omit the script type attribute in html5 mode', function () {
         var manager = setup('simple-assets', { hashLength: 6, html5: true });
         assert.equal(manager.asset('jquery.js'),
-            '<script src="asset-82470a-jquery.js"></script>');
+            '<script src="/asset-82470a-jquery.js"></script>');
     });
 
     it('should generate link tags for css assets', function () {
         var manager = setup('simple-assets', { hashLength: 6 });
         assert.equal(manager.asset('style.css'),
-            '<link href="asset-688f09-style.css" rel="stylesheet" />');
+            '<link href="/asset-688f09-style.css" rel="stylesheet" />');
     });
 
     it('should emit an error when the manager doesn\'t know how to output a tag', function () {
@@ -60,27 +60,27 @@ describe('Filenames', function () {
                 return format('<custom src="%s" />', url);
             }}
         });
-        assert.equal(manager.asset('robots.txt'), '<custom src="asset-74be16-robots.txt" />');
+        assert.equal(manager.asset('robots.txt'), '<custom src="/asset-74be16-robots.txt" />');
     });
 
     it('should output tags for icons', function () {
         var manager = setup('simple-assets', { hashLength: 6 });
         assert.equal(manager.asset('favicon.ico'),
-            '<link href="asset-74be16-favicon.ico" rel="shortcut icon" />');
+            '<link href="/asset-74be16-favicon.ico" rel="shortcut icon" />');
     });
 
     it('should output tags for images', function () {
         var manager = setup('simple-assets', { hashLength: 6 });
         assert.equal(manager.asset('image.png'),
-            '<img src="asset-74be16-image.png" />');
+            '<img src="/asset-74be16-image.png" />');
         assert.equal(manager.asset('image.gif'),
-            '<img src="asset-74be16-image.gif" />');
+            '<img src="/asset-74be16-image.gif" />');
     });
 
     it('should escape certain chars in attribute values', function () {
         var manager = setup('simple-assets', { hashLength: 6 });
         assert.equal(manager.asset('image.png', { attributes: { alt: 'Foo & bar' }}),
-            '<img src="asset-74be16-image.png" alt="Foo &amp; bar" />');
+            '<img src="/asset-74be16-image.png" alt="Foo &amp; bar" />');
     });
 
     it('should prefix the asset URLs with a custom prefix', function () {
