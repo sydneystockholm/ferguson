@@ -51,4 +51,11 @@ describe('Filenames', function () {
         assert(had_error, 'Expected an error');
     });
 
+    it('should only require the user to define an asset once', function () {
+        var manager = setup('simple-assets');
+        var expected = 'asset-b5d5d67465f661c1a12da394e502b391-ie8.js';
+        assert.equal(manager.asset('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] }), expected);
+        assert.equal(manager.asset('ie8.js'), expected);
+    });
+
 });
