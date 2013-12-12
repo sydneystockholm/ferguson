@@ -1,0 +1,66 @@
+var assert = require('assert')
+  , path = require('path')
+  , format = require('util').format;
+
+var AssetManager = require('../lib/assets').AssetManager
+  , fixtures = path.join(__dirname, 'fixtures');
+
+function setup(directory, options) {
+    var manager = new AssetManager(path.join(fixtures, directory), options);
+    manager.indexAssets();
+    manager.hashAssets();
+    return manager;
+}
+
+describe('Filenames', function () {
+
+    it('should generate script tags for javascript assets', function () {
+        var manager = setup('simple-assets', { hashLength: 6 });
+        assert.equal(manager.asset('jquery.js'),
+            '<script src="asset-82470a-jquery.js" type="text/javascript"></script>');
+    });
+
+    it('should let users specify additional tag attributes', function () {
+        var manager = setup('simple-assets', { hashLength: 6 });
+        var tag = manager.asset('jquery.js', { attributes: {
+            type: 'text/x-template'
+          , id: 'my-template'
+        }});
+        assert.equal(tag, '<script src="asset-82470a-jquery.js" id="my-template" ' +
+            'type="text/x-template"></script>');
+    });
+
+    it('should omit the script type attribute in html5 mode', function () {
+        var manager = setup('simple-assets', { hashLength: 6, html5: true });
+        assert.equal(manager.asset('jquery.js'),
+            '<script src="asset-82470a-jquery.js"></script>');
+    });
+
+    it('should generate link tags for css assets', function () {
+        var manager = setup('simple-assets', { hashLength: 6 });
+        assert.equal(manager.asset('style.css'),
+            '<link href="asset-688f09-style.css" rel="stylesheet" />');
+    });
+
+    it('should emit an error when the manager doesn\'t know how to output a tag', function () {
+        var manager = setup('simple-assets')
+          , had_error = false;
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'Unable to create an HTML tag for type ".txt"');
+            had_error = true;
+        });
+        assert.equal(manager.asset('robots.txt'), '');
+        assert(had_error, 'Expected an error');
+    });
+
+    it('should let users specify custom tag formats', function () {
+        var manager = setup('simple-assets', {
+            hashLength: 6
+          , tagFormats: { '.txt': function (url) {
+                return format('<custom src="%s" />', url);
+            }}
+        });
+        assert.equal(manager.asset('robots.txt'), '<custom src="asset-74be16-robots.txt" />');
+    });
+
+});
