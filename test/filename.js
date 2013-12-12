@@ -64,10 +64,10 @@ describe('Filenames', function () {
         var manager = setup('simple-assets');
         var tag = manager.assetFilename('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
         assert.equal(tag, 'asset-b5d5d67465f661c1a12da394e502b391-ie8.js');
-        tag = manager.assetFilename('ie8b.js', { include: [
+        tag = manager.assetFilename('ie8-b.js', { include: [
             'respond.js', 'html5shiv.js', 'respond.js', 'respond.js', 'html5shiv.js'
         ] });
-        assert.equal(tag, 'asset-b5d5d67465f661c1a12da394e502b391-ie8b.js');
+        assert.equal(tag, 'asset-b5d5d67465f661c1a12da394e502b391-ie8-b.js');
     });
 
     it('should require a populated include array when defining asset bundles', function () {
@@ -78,6 +78,20 @@ describe('Filenames', function () {
         });
         manager.assetFilename('libraries.js', { include: [] });
         assert(had_error, 'Expected an error');
+    });
+
+    it('should support glob when including assets in a bundle', function () {
+        var manager = setup('simple-assets');
+        var tag = manager.assetFilename('all.js', { include: [
+            'html5shiv.js', 'respond.js', 'jquery.js'
+        ] });
+        assert.equal(tag, 'asset-c919d0e16fda90c516ca98655b7b6222-all.js');
+        tag = manager.assetFilename('all-b.js', { include: '*.js' });
+        assert.equal(tag, 'asset-c919d0e16fda90c516ca98655b7b6222-all-b.js');
+        tag = manager.assetFilename('all-c.js', { include: [
+            '{jquery,respond}.js', 'html*.js'
+        ] });
+        assert.equal(tag, 'asset-c919d0e16fda90c516ca98655b7b6222-all-c.js');
     });
 
 });

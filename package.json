@@ -16,7 +16,8 @@
     "node": ">= 0.10.0"
   },
   "dependencies": {
-    "entities": "0.3.0"
+    "entities": "0.3.0",
+    "minimatch": "0.2.12"
   },
   "devDependencies": {
     "mocha": "latest",
