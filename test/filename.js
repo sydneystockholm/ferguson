@@ -44,7 +44,8 @@ describe('Filenames', function () {
         var manager = setup('simple-assets')
           , had_error = false;
         manager.on('error', function (err) {
-            assert.equal(err.message, 'Asset "bootstrap.js" could not be found');
+            assert.equal(err.message, 'Asset "bootstrap.js" could not be found ' +
+                'when building asset "libraries.js"');
             had_error = true;
         });
         manager.assetFilename('libraries.js', { include: [ 'jquery.js', 'bootstrap.js' ] });
@@ -63,10 +64,20 @@ describe('Filenames', function () {
         var manager = setup('simple-assets');
         var tag = manager.assetFilename('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
         assert.equal(tag, 'asset-b5d5d67465f661c1a12da394e502b391-ie8.js');
-        tag = manager.assetFilename('ie8.js', { include: [
+        tag = manager.assetFilename('ie8b.js', { include: [
             'respond.js', 'html5shiv.js', 'respond.js', 'respond.js', 'html5shiv.js'
         ] });
-        assert.equal(tag, 'asset-b5d5d67465f661c1a12da394e502b391-ie8.js');
+        assert.equal(tag, 'asset-b5d5d67465f661c1a12da394e502b391-ie8b.js');
+    });
+
+    it('should require a populated include array when defining asset bundles', function () {
+        var manager = setup('simple-assets')
+          , had_error = false;
+        manager.on('error', function () {
+            had_error = true;
+        });
+        manager.assetFilename('libraries.js', { include: [] });
+        assert(had_error, 'Expected an error');
     });
 
 });

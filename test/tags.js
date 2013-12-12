@@ -102,4 +102,14 @@ describe('Filenames', function () {
             '<img src="http://cdn.foo.com/static/asset-74be16-image.png" />');
     });
 
+    it('should return an empty string when an error occurs', function () {
+        var manager = setup('simple-assets')
+          , had_error = false;
+        manager.on('error', function () {
+            had_error = true;
+        });
+        assert.equal(manager.asset('unknown.js'), '');
+        assert(had_error, 'Expected an error');
+    });
+
 });
