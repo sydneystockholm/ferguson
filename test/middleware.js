@@ -102,4 +102,51 @@ describe('Middleware', function () {
         });
     });
 
+    it('should serve static assets', function (done) {
+        var manager = new AssetManager(path.join(fixtures, 'simple-assets'));
+        mocks(function (app, request, next) {
+            manager.init(app);
+            request('/jquery.js', function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(response.headers['content-type'], 'application/javascript');
+                assert.equal(response.headers['cache-control'], 'public, max-age=0');
+                assert.equal(body.trim(), 'window.jQuery = {};');
+                next(done);
+            });
+        });
+    });
+
+    it('should serve static assets with a configurable max-age', function (done) {
+        var manager = new AssetManager(path.join(fixtures, 'simple-assets'), {
+            maxAge: 86400000
+        });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            request('/jquery.js', function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(response.headers['content-type'], 'application/javascript');
+                assert.equal(response.headers['cache-control'], 'public, max-age=86400');
+                assert.equal(body.trim(), 'window.jQuery = {};');
+                next(done);
+            });
+        });
+    });
+
+    it('should serve static assets from a configurable prefix', function (done) {
+        var manager = new AssetManager(path.join(fixtures, 'simple-assets'), {
+            prefix: '/static'
+        });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            request('/static/jquery.js', function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'window.jQuery = {};');
+                next(done);
+            });
+        });
+    });
+
 });
