@@ -455,4 +455,41 @@ describe('Middleware', function () {
         });
     });
 
+    it('should only compile assets once, even with multiple concurrent requests', function (done) {
+        var assets = path.join(fixtures, 'simple-assets')
+          , manager = new Manager(assets);
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var jquery = manager.assetPath('jquery.js');
+            rimraf.sync(path.join(assets, jquery));
+            var compilations = 0;
+            var compile = manager.compileAsset;
+            manager.compileAsset = function () {
+                compilations++;
+                compile.apply(this, arguments);
+            };
+            var requests = 3
+              , complete = false
+              , remaining = requests
+              , pos = 0;
+            while (++pos <= requests) {
+                request(jquery, function (err, response, body) {
+                    if (complete) {
+                        return;
+                    } else if (err) {
+                        complete = true;
+                        throw err;
+                    }
+                    assert.equal(response.statusCode, 200);
+                    assert.equal(response.headers['content-type'], 'application/javascript');
+                    assert.equal(body.trim(), 'window.jQuery = {};');
+                    if (!--remaining) {
+                        assert.equal(compilations, 1);
+                        next(done);
+                    }
+                });
+            }
+        });
+    });
+
 });
