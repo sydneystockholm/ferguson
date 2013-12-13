@@ -439,4 +439,20 @@ describe('Middleware', function () {
         });
     });
 
+    it('should have an option to wrap Javascript in an IIFE', function (done) {
+        var assets = path.join(fixtures, 'simple-assets')
+          , manager = new Manager(assets, { wrapJavascript: true, compress: true });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var ie8 = manager.assetPath('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
+            rimraf.sync(path.join(assets, ie8));
+            request(ie8, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), '!function(){window.shiv={},window.respond={}}();');
+                next(done);
+            });
+        });
+    });
+
 });
