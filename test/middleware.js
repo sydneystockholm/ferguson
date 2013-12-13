@@ -509,6 +509,7 @@ describe('Middleware', function () {
                 var files = fs.readdirSync(temp);
                 assert.equal(files.length, 3);
                 assert.equal(files.indexOf('asset-12345678-jquery.js'), -1);
+                jquery = manager.assetPath('jquery.js');
                 next(done);
             });
         });
