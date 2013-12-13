@@ -6,7 +6,7 @@ test: dependencies
 		--grep '$(TEST)'
 
 lint: dependencies
-	@$(NPM)/jshint --config .jshintrc lib test
+	@$(NPM)/jshint --config .jshintrc lib test/*.js
 
 dependencies:
 	@if [ ! -d node_modules ]; then \
