@@ -414,4 +414,29 @@ describe('Middleware', function () {
         });
     });
 
+    it('should provide helpers for registering compilers and compressors', function (done) {
+        var assets = path.join(fixtures, 'less-assets')
+          , manager = new Manager(assets, { compress: true });
+        manager.registerCompiler('.less', '.css', function (contents, options, callback) {
+            callback(new Error('Oops')); //To be replaced
+        });
+        manager.registerCompiler('.less', '.css', function (contents, options, callback) {
+            less.render(contents, callback);
+        });
+        manager.registerCompressor('.css', function (contents, options, callback) {
+            callback(null, contents.replace(/[\n ]/g, '').replace('body', 'h1'));
+        });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var style = manager.assetPath('foo.css');
+            rimraf.sync(path.join(assets, style));
+            request(style, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'h1{color:#ff0000;}');
+                next(done);
+            });
+        });
+    });
+
 });

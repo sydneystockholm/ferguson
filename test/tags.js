@@ -53,12 +53,28 @@ describe('Tags', function () {
         assert(had_error, 'Expected an error');
     });
 
-    it('should let users specify custom tag formats', function () {
+    it('should let users specify custom tag formats through options', function () {
         var manager = setup('simple-assets', {
             hashLength: 6
           , tags: { '.txt': function (url) {
                 return format('<custom src="%s" />', url);
             }}
+        });
+        assert.equal(manager.asset('robots.txt'), '<custom src="/asset-74be16-robots.txt" />');
+    });
+
+    it('should provide a helper for defining custom tag formats', function () {
+        var manager = setup('simple-assets', { hashLength: 6 });
+        manager.registerTag('.txt', function (url) {
+            return format('<custom src="%s" />', url);
+        });
+        assert.equal(manager.asset('robots.txt'), '<custom src="/asset-74be16-robots.txt" />');
+    });
+
+    it('should normalise the extname when defining custom tags', function () {
+        var manager = setup('simple-assets', { hashLength: 6 });
+        manager.registerTag('TXT', function (url) {
+            return format('<custom src="%s" />', url);
         });
         assert.equal(manager.asset('robots.txt'), '<custom src="/asset-74be16-robots.txt" />');
     });
