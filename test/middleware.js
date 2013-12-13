@@ -353,4 +353,36 @@ describe('Middleware', function () {
         });
     });
 
+    it('should send a 500 when a compilation error occurs', function (done) {
+        var compilers = {
+            '.less': {
+                output: '.css'
+              , compile: function (contents, options, callback) {
+                    less.render(contents, callback);
+                }
+            }
+        };
+        var assets = path.join(fixtures, 'less-assets')
+          , manager = new Manager(assets, { compress: true, compilers: compilers });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var requestError;
+            app.use(function (err, request, response, next) {
+                requestError = err;
+                next = next; //-jshint
+                response.send(500);
+            });
+            var style = manager.assetPath('invalid.css');
+            rimraf.sync(path.join(assets, style));
+            request(style, function (err, response) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 500);
+                assert(requestError &&
+                    requestError.message.indexOf('Failed to compile file "invalid.less"') >= 0,
+                    'Expected a request error when compilation fails');
+                next(done);
+            });
+        });
+    });
+
 });
