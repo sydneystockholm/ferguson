@@ -28,6 +28,7 @@
     "jshint": "latest",
     "rimraf": "latest",
     "express": "latest",
-    "nunjucks": "latest"
+    "nunjucks": "latest",
+    "less": "latest"
   }
 }

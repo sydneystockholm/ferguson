@@ -106,4 +106,31 @@ describe('Filenames', function () {
         assert(had_error, 'Expected an error');
     });
 
+    it('should use uncompiled asset hashes when generating asset filenames', function () {
+        var manager = setup('less-assets', { compilers: {
+            '.css': {
+                '.less': function () {}
+            }
+        }});
+        assert.equal(manager.assetPath('foo.css'), '/asset-a2029888991a8a83377fea454686b636-foo.css');
+    });
+
+    it('should provide helpful error message when an uncompiled asset can\'t be found', function () {
+        var compilers = {
+            '.css': {
+                '.less': function () {}
+              , '.styl': function () {}
+            }
+        };
+        var manager = setup('simple-assets', { compilers: compilers })
+          , had_error = false;
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'Asset "unknown.css" could not be found ' +
+                '(tried "unknown.less", "unknown.styl")');
+            had_error = true;
+        });
+        manager.assetPath('unknown.css');
+        assert(had_error, 'Expected an error');
+    });
+
 });
