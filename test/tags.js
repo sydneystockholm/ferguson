@@ -56,7 +56,7 @@ describe('Tags', function () {
     it('should let users specify custom tag formats', function () {
         var manager = setup('simple-assets', {
             hashLength: 6
-          , tagFormats: { '.txt': function (url) {
+          , tags: { '.txt': function (url) {
                 return format('<custom src="%s" />', url);
             }}
         });
