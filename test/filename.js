@@ -108,19 +108,15 @@ describe('Filenames', function () {
 
     it('should use uncompiled asset hashes when generating asset filenames', function () {
         var manager = setup('less-assets', { compilers: {
-            '.css': {
-                '.less': function () {}
-            }
+            '.less': { output: '.css', compile: function () {} }
         }});
         assert.equal(manager.assetPath('foo.css'), '/asset-a2029888991a8a83377fea454686b636-foo.css');
     });
 
     it('should provide helpful error message when an uncompiled asset can\'t be found', function () {
         var compilers = {
-            '.css': {
-                '.less': function () {}
-              , '.styl': function () {}
-            }
+            '.less': { output: '.css', compile: function () {} }
+          , '.styl': { output: '.css', compile: function () {} }
         };
         var manager = setup('simple-assets', { compilers: compilers })
           , had_error = false;
@@ -134,10 +130,9 @@ describe('Filenames', function () {
     });
 
     it('should provide helpful error message when an uncompiled asset can\'t be found (2)', function () {
+        //Some compilers (e.g. browserify) have the same input/output extname
         var compilers = {
-            '.js': {
-                '.js': function () {} //e.g. browserify
-            }
+            '.js': { output: '.js', compile: function () {} }
         };
         var manager = setup('simple-assets', { compilers: compilers })
           , had_error = false;
@@ -151,10 +146,8 @@ describe('Filenames', function () {
 
     it('should provide helpful error message when an uncompiled asset can\'t be found (3)', function () {
         var compilers = {
-            '.css': {
-                '.less': function () {}
-              , '.styl': function () {}
-            }
+            '.less': { output: '.css', compile: function () {} }
+          , '.styl': { output: '.css', compile: function () {} }
         };
         var manager = setup('simple-assets', { compilers: compilers })
           , had_error = false;
