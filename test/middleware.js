@@ -604,7 +604,8 @@ describe('Middleware', function () {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 200);
                 assert.equal(body.trim(), 'var foo');
-                manager.on('change', function () {
+                manager.on('change', function (filename) {
+                    if (filename !== 'jquery.js') return;
                     manager.on('error', function (err) {
                         assert.equal(err.message, 'Asset "jquery.js" could not be found');
                         manager.destroy();
@@ -633,9 +634,7 @@ describe('Middleware', function () {
                 assert.equal(response.statusCode, 200);
                 assert.equal(body.trim(), 'var foo');
                 manager.on('change', function (filename) {
-                    if (filename !== 'bootstrap.js') {
-                        return;
-                    }
+                    if (filename !== 'bootstrap.js') return;
                     var updated = manager.assetPath('bootstrap.js');
                     assert.notEqual(compiled, updated);
                     request(updated, function (err, response, body) {
@@ -671,7 +670,8 @@ describe('Middleware', function () {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 200);
                 assert.equal(body.trim(), 'var foo');
-                manager.on('change', function () {
+                manager.on('change', function (filename) {
+                    if (filename !== 'css') return;
                     var asset = manager.assetPath('css/jquery.js');
                     request(asset, function (err, response, body) {
                         assert.ifError(err);
