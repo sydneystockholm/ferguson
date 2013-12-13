@@ -229,6 +229,23 @@ describe('Middleware', function () {
         });
     });
 
+    it('should serve up bundles of assets from a subdirectory', function (done) {
+        var assets = path.join(fixtures, 'simple-assets')
+          , manager = new Manager(assets);
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var ie8 = manager.assetPath('js/ie8.js',
+                { include: [ 'js/html5shiv.js', 'js/respond.js' ] });
+            rimraf.sync(path.join(assets, ie8));
+            request(ie8, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'window.shiv = {};\nwindow.respond = {};');
+                next(done);
+            });
+        });
+    });
+
     it('should compress javascript assets', function (done) {
         var assets = path.join(fixtures, 'simple-assets')
           , manager = new Manager(assets, { compress: true });
