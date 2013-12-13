@@ -168,8 +168,8 @@ describe('Middleware', function () {
     });
 
     it('should compile and serve a single file asset', function (done) {
-        var assets = path.join(fixtures, 'simple-assets');
-        var manager = new Manager(assets);
+        var assets = path.join(fixtures, 'simple-assets')
+          , manager = new Manager(assets);
         mocks(function (app, request, next) {
             manager.init(app);
             var jquery = manager.assetPath('jquery.js');
@@ -207,6 +207,23 @@ describe('Middleware', function () {
                 assert(requestError && requestError.message.indexOf('EISDIR') >= 0,
                     'Expected an EISDIR error');
                 assert.equal(response.statusCode, 500);
+                next(done);
+            });
+        });
+    });
+
+    it('should serve up bundles of assets', function (done) {
+        var assets = path.join(fixtures, 'simple-assets')
+          , manager = new Manager(assets);
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var ie8 = manager.assetPath('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
+            rimraf.sync(path.join(assets, ie8));
+            request(ie8, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(response.headers['content-type'], 'application/javascript');
+                assert.equal(body.trim(), 'window.shiv = {};\nwindow.respond = {};');
                 next(done);
             });
         });
