@@ -128,4 +128,13 @@ describe('Tags', function () {
         assert(had_error, 'Expected an error');
     });
 
+    it('should let users reference compiler\'s extensions instead of output extensions', function () {
+        var compilers = {
+            '.less': { output: '.css', compile: function () {} }
+        };
+        var manager = setup('less-assets', { compilers: compilers });
+        assert.equal(manager.asset('foo.less'),
+            '<link href="/asset-a2029888991a8a83377fea454686b636-foo.css" rel="stylesheet" />');
+    });
+
 });
