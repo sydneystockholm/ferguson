@@ -1,6 +1,7 @@
 var assert = require('assert')
   , path = require('path')
   , http = require('http')
+  , less = require('less')
   , rimraf = require('rimraf')
   , express = require('express')
   , nunjucks = require('nunjucks')
@@ -299,6 +300,54 @@ describe('Middleware', function () {
                 assert.equal(response.statusCode, 500);
                 assert(requestError && requestError.message.indexOf('Failed to compress asset') >= 0,
                     'Expected an UglifyJS error');
+                next(done);
+            });
+        });
+    });
+
+    it('should serve up less assets', function (done) {
+        var compilers = {
+            '.less': {
+                output: '.css'
+              , compile: function (contents, options, callback) {
+                    less.render(contents, callback);
+                }
+            }
+        };
+        var assets = path.join(fixtures, 'less-assets')
+          , manager = new Manager(assets, { compress: true, compilers: compilers });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var style = manager.assetPath('foo.css');
+            rimraf.sync(path.join(assets, style));
+            request(style, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'body{color:red}');
+                next(done);
+            });
+        });
+    });
+
+    it('should serve up bundles of less assets', function (done) {
+        var compilers = {
+            '.less': {
+                output: '.css'
+              , compile: function (contents, options, callback) {
+                    less.render(contents, callback);
+                }
+            }
+        };
+        var assets = path.join(fixtures, 'less-assets')
+          , manager = new Manager(assets, { compress: true, compilers: compilers });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var style = manager.assetPath('styles.css', { include: [ 'foo.css', 'bar.css' ] });
+            rimraf.sync(path.join(assets, style));
+            request(style, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'a{color:#00f}body{color:red}');
                 next(done);
             });
         });
