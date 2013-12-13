@@ -10,7 +10,8 @@ var assert = require('assert')
 
 var Manager = require('../').Manager
   , fixtures = path.join(__dirname, 'fixtures')
-  , temp = path.join(__dirname, 'tmp');
+  , temp = path.join(__dirname, 'tmp')
+  , temp2 = path.join(__dirname, 'tmp2');
 
 function mocks(callback) {
     var app = express()
@@ -551,7 +552,136 @@ describe('Middleware', function () {
                 assert.equal(files.length, 3);
                 assert.equal(files.indexOf('asset-12345678-jquery.js'), -1);
                 jquery = manager.assetPath('jquery.js');
+                manager.destroy();
                 next(done);
+            });
+        });
+    });
+
+    it('should watch the directory for changes when the hotReload option is set', function (done) {
+        rimraf.sync(temp);
+        fs.mkdirSync(temp);
+        var jquery = path.join(temp, 'jquery.js');
+        fs.writeFileSync(jquery, 'var foo');
+        var manager = new Manager(temp, {
+            hotReload: true
+        });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var compiled = manager.assetPath('jquery.js');
+            request(compiled, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'var foo');
+                manager.on('change', function () {
+                    var updated = manager.assetPath('jquery.js');
+                    assert.notEqual(compiled, updated);
+                    request(updated, function (err, response, body) {
+                        assert.ifError(err);
+                        assert.equal(response.statusCode, 200);
+                        assert.equal(body.trim(), 'var bar');
+                        manager.destroy();
+                        next(done);
+                    });
+                });
+                fs.writeFileSync(jquery, 'var bar');
+            });
+        });
+    });
+
+    it('should watch the directory for deletions when the hotReload option is set', function (done) {
+        rimraf.sync(temp);
+        fs.mkdirSync(temp);
+        var jquery = path.join(temp, 'jquery.js');
+        fs.writeFileSync(jquery, 'var foo');
+        var manager = new Manager(temp, {
+            hotReload: true
+        });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var compiled = manager.assetPath('jquery.js');
+            request(compiled, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'var foo');
+                manager.on('change', function () {
+                    manager.on('error', function (err) {
+                        assert.equal(err.message, 'Asset "jquery.js" could not be found');
+                        manager.destroy();
+                        next(done);
+                    });
+                    manager.assetPath('jquery.js');
+                });
+                fs.unlinkSync(jquery);
+            });
+        });
+    });
+
+    it('should watch the directory for additions when the hotReload option is set', function (done) {
+        rimraf.sync(temp);
+        fs.mkdirSync(temp);
+        var jquery = path.join(temp, 'jquery.js');
+        fs.writeFileSync(jquery, 'var foo');
+        var manager = new Manager(temp, {
+            hotReload: true
+        });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var compiled = manager.assetPath('jquery.js');
+            request(compiled, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'var foo');
+                manager.on('change', function (filename) {
+                    if (filename !== 'bootstrap.js') {
+                        return;
+                    }
+                    var updated = manager.assetPath('bootstrap.js');
+                    assert.notEqual(compiled, updated);
+                    request(updated, function (err, response, body) {
+                        assert.ifError(err);
+                        assert.equal(response.statusCode, 200);
+                        assert.equal(body.trim(), 'var bar');
+                        manager.destroy();
+                        next(done);
+                    });
+                });
+                fs.writeFileSync(path.join(temp, 'bootstrap.js'), 'var bar');
+            });
+        });
+    });
+
+    it('should detect new directories when the hotReload option is set', function (done) {
+        rimraf.sync(temp);
+        rimraf.sync(temp2);
+        fs.mkdirSync(temp);
+        fs.mkdirSync(temp2);
+        var jquery = path.join(temp, 'jquery.js')
+          , jquery2 = path.join(temp2, 'jquery.js')
+          , css = path.join(temp, 'css');
+        fs.writeFileSync(jquery, 'var foo');
+        fs.writeFileSync(jquery2, 'var bar');
+        var manager = new Manager(temp, {
+            hotReload: true
+        });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var compiled = manager.assetPath('jquery.js');
+            request(compiled, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'var foo');
+                manager.on('change', function () {
+                    var asset = manager.assetPath('css/jquery.js');
+                    request(asset, function (err, response, body) {
+                        assert.ifError(err);
+                        assert.equal(response.statusCode, 200);
+                        assert.equal(body.trim(), 'var bar');
+                        manager.destroy();
+                        next(done);
+                    });
+                });
+                fs.renameSync(temp2, css);
             });
         });
     });

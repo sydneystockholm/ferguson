@@ -2,5 +2,6 @@ node_modules
 .DS_Store
 coverage
 test/tmp
+test/tmp2
 .asset-manifest
 test/fixtures/**/asset-*

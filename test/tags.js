@@ -137,4 +137,15 @@ describe('Tags', function () {
             '<link href="/asset-a2029888991a8a83377fea454686b636-foo.css" rel="stylesheet" />');
     });
 
+    it('should only require the user to define an asset once', function () {
+        var manager = setup('simple-assets');
+        assert.equal(manager.asset('ie8.js',
+            { include: [ 'html5shiv.js', 'respond.js' ], attributes: { 'class': 'bar' }}),
+            '<script src="/asset-b5d5d67465f661c1a12da394e502b391-ie8.js" ' +
+                'class="bar" type="text/javascript"></script>');
+        assert.equal(manager.asset('ie8.js', { attributes: { id: 'foo' }}),
+            '<script src="/asset-b5d5d67465f661c1a12da394e502b391-ie8.js" ' +
+                'class="bar" id="foo" type="text/javascript"></script>');
+    });
+
 });
