@@ -385,4 +385,33 @@ describe('Middleware', function () {
         });
     });
 
+    it('should be safe to add the middleware to multiple express apps', function (done) {
+        var manager = new Manager(path.join(fixtures, 'empty'));
+        mocks(function (app, request, next) {
+            manager.init(app);
+            app.get('/foo.txt', function (request, response) {
+                response.send('foo');
+            });
+            request('/foo.txt', function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body, 'foo');
+                mocks(function (app2, request2, next2) {
+                    manager.init(app2);
+                    app2.get('/foo.txt', function (request, response) {
+                        response.send('foo');
+                    });
+                    request2('/foo.txt', function (err, response, body) {
+                        assert.ifError(err);
+                        assert.equal(response.statusCode, 200);
+                        assert.equal(body, 'foo');
+                        next2(function () {
+                            next(done);
+                        });
+                    });
+                });
+            });
+        });
+    });
+
 });
