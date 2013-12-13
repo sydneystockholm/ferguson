@@ -2,11 +2,11 @@ var assert = require('assert')
   , path = require('path')
   , format = require('util').format;
 
-var AssetManager = require('../lib/assets').AssetManager
+var Manager = require('../').Manager
   , fixtures = path.join(__dirname, 'fixtures');
 
 function setup(directory, options) {
-    var manager = new AssetManager(path.join(fixtures, directory), options);
+    var manager = new Manager(path.join(fixtures, directory), options);
     manager.indexAssets();
     manager.hashAssets();
     return manager;

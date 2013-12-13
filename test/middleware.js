@@ -6,7 +6,7 @@ var assert = require('assert')
   , nunjucks = require('nunjucks')
   , port = 12435;
 
-var AssetManager = require('../lib/assets').AssetManager
+var Manager = require('../').Manager
   , fixtures = path.join(__dirname, 'fixtures');
 
 function mocks(callback) {
@@ -48,7 +48,7 @@ function mocks(callback) {
 describe('Middleware', function () {
 
     it('should provide express middleware', function (done) {
-        var manager = new AssetManager(path.join(fixtures, 'empty'));
+        var manager = new Manager(path.join(fixtures, 'empty'));
         mocks(function (app, request, next) {
             manager.init(app);
             app.get('/foo.txt', function (request, response) {
@@ -64,7 +64,7 @@ describe('Middleware', function () {
     });
 
     it('should provide a view helper for defining assets', function (done) {
-        var manager = new AssetManager(path.join(fixtures, 'empty'));
+        var manager = new Manager(path.join(fixtures, 'empty'));
         manager.asset = function () {
             return 'foo';
         };
@@ -83,7 +83,7 @@ describe('Middleware', function () {
     });
 
     it('should let users modify the view helper name', function (done) {
-        var manager = new AssetManager(path.join(fixtures, 'empty'), {
+        var manager = new Manager(path.join(fixtures, 'empty'), {
             viewHelper: 'foobarbaz'
         });
         manager.asset = function () {
@@ -104,7 +104,7 @@ describe('Middleware', function () {
     });
 
     it('should serve static assets', function (done) {
-        var manager = new AssetManager(path.join(fixtures, 'simple-assets'));
+        var manager = new Manager(path.join(fixtures, 'simple-assets'));
         mocks(function (app, request, next) {
             manager.init(app);
             request('/jquery.js', function (err, response, body) {
@@ -119,7 +119,7 @@ describe('Middleware', function () {
     });
 
     it('should serve static assets with a configurable max-age', function (done) {
-        var manager = new AssetManager(path.join(fixtures, 'simple-assets'), {
+        var manager = new Manager(path.join(fixtures, 'simple-assets'), {
             maxAge: 86400000
         });
         mocks(function (app, request, next) {
@@ -136,7 +136,7 @@ describe('Middleware', function () {
     });
 
     it('should serve static assets from a configurable prefix', function (done) {
-        var manager = new AssetManager(path.join(fixtures, 'simple-assets'), {
+        var manager = new Manager(path.join(fixtures, 'simple-assets'), {
             servePrefix: '/static'
         });
         mocks(function (app, request, next) {
@@ -152,7 +152,7 @@ describe('Middleware', function () {
     });
 
     it('should 404 when a compiled asset that\'s unknown to the manager is encountered', function (done) {
-        var manager = new AssetManager(path.join(fixtures, 'simple-assets'), {
+        var manager = new Manager(path.join(fixtures, 'simple-assets'), {
             servePrefix: '/static'
         });
         mocks(function (app, request, next) {
@@ -167,7 +167,7 @@ describe('Middleware', function () {
 
     it('should compile and serve a single file asset', function (done) {
         var assets = path.join(fixtures, 'simple-assets');
-        var manager = new AssetManager(assets);
+        var manager = new Manager(assets);
         mocks(function (app, request, next) {
             manager.init(app);
             var jquery = manager.assetPath('jquery.js');
