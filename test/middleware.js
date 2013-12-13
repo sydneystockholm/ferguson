@@ -4,10 +4,12 @@ var assert = require('assert')
   , rimraf = require('rimraf')
   , express = require('express')
   , nunjucks = require('nunjucks')
+  , fs = require('fs')
   , port = 12435;
 
 var Manager = require('../').Manager
-  , fixtures = path.join(__dirname, 'fixtures');
+  , fixtures = path.join(__dirname, 'fixtures')
+  , temp = path.join(__dirname, 'tmp');
 
 function mocks(callback) {
     var app = express()
@@ -177,6 +179,34 @@ describe('Middleware', function () {
                 assert.equal(response.statusCode, 200);
                 assert.equal(response.headers['content-type'], 'application/javascript');
                 assert.equal(body.trim(), 'window.jQuery = {};');
+                next(done);
+            });
+        });
+    });
+
+    it('should 500 when an asset read error occurs', function (done) {
+        rimraf.sync(temp);
+        fs.mkdirSync(temp);
+        var jqueryPath = path.join(temp, 'jquery.js');
+        fs.writeFileSync(jqueryPath, 'var foo');
+        var manager = new Manager(temp);
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var requestError;
+            app.use(function (err, request, response, next) {
+                requestError = err;
+                next = next; //-jshint
+                response.send(500);
+            });
+            //Let's be pathological and replace jquery.js with a directory
+            fs.unlinkSync(jqueryPath);
+            fs.mkdirSync(jqueryPath);
+            var jquery = manager.assetPath('jquery.js');
+            request(jquery, function (err, response) {
+                assert.ifError(err);
+                assert(requestError && requestError.message.indexOf('EISDIR') >= 0,
+                    'Expected an EISDIR error');
+                assert.equal(response.statusCode, 500);
                 next(done);
             });
         });
