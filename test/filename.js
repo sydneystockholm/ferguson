@@ -133,4 +133,38 @@ describe('Filenames', function () {
         assert(had_error, 'Expected an error');
     });
 
+    it('should provide helpful error message when an uncompiled asset can\'t be found (2)', function () {
+        var compilers = {
+            '.js': {
+                '.js': function () {} //e.g. browserify
+            }
+        };
+        var manager = setup('simple-assets', { compilers: compilers })
+          , had_error = false;
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'Asset "unknown.js" could not be found');
+            had_error = true;
+        });
+        manager.assetPath('unknown.js');
+        assert(had_error, 'Expected an error');
+    });
+
+    it('should provide helpful error message when an uncompiled asset can\'t be found (3)', function () {
+        var compilers = {
+            '.css': {
+                '.less': function () {}
+              , '.styl': function () {}
+            }
+        };
+        var manager = setup('simple-assets', { compilers: compilers })
+          , had_error = false;
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'Asset "css/unknown.css" could not be found ' +
+                '(tried "css/unknown.less", "css/unknown.styl")');
+            had_error = true;
+        });
+        manager.assetPath('css/unknown.css');
+        assert(had_error, 'Expected an error');
+    });
+
 });
