@@ -160,4 +160,52 @@ describe('Filenames', function () {
         assert(had_error, 'Expected an error');
     });
 
+    it('should let users manually specify a list of a file\'s dependencies', function () {
+        var compilers = {
+            '.less': { output: '.css', compile: function () {} }
+        };
+        var manager = setup('less-assets', { compilers: compilers });
+        var tag = manager.assetPath('foo.css', { dependencies: [ 'bar.less' ] });
+        assert.equal(tag, '/asset-656773a8fada8539b9c29914d7ffae3a-foo.css');
+    });
+
+    it('should support glob when specifying a list of a file\'s dependencies', function () {
+        var compilers = {
+            '.less': { output: '.css', compile: function () {} }
+        };
+        var manager = setup('less-assets', { compilers: compilers });
+        var tag = manager.assetPath('foo.css', { dependencies: 'b*.less' });
+        assert.equal(tag, '/asset-656773a8fada8539b9c29914d7ffae3a-foo.css');
+    });
+
+    it('should emit an error when no assets match a dependency', function () {
+        var compilers = {
+            '.less': { output: '.css', compile: function () {} }
+        };
+        var manager = setup('less-assets', { compilers: compilers })
+          , had_error = false;
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'Failed to locate "unknown.less" ' +
+                'when finding dependencies for "foo.css"');
+            had_error = true;
+        });
+        manager.assetPath('foo.css', { dependencies: 'unknown.less' });
+        assert(had_error, 'Expected an error');
+    });
+
+    it('should emit an error when no assets match a dependency glob pattern', function () {
+        var compilers = {
+            '.less': { output: '.css', compile: function () {} }
+        };
+        var manager = setup('less-assets', { compilers: compilers })
+          , had_error = false;
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'No assets matched the pattern "*.unknown" ' +
+                'when finding dependencies for "foo.css"');
+            had_error = true;
+        });
+        manager.assetPath('foo.css', { dependencies: '*.unknown' });
+        assert(had_error, 'Expected an error');
+    });
+
 });
