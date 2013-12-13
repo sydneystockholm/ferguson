@@ -346,6 +346,30 @@ describe('Middleware', function () {
         });
     });
 
+    it('should serve up less assets from a subdirectory', function (done) {
+        var compilers = {
+            '.less': {
+                output: '.css'
+              , compile: function (contents, options, callback) {
+                    less.render(contents, callback);
+                }
+            }
+        };
+        var assets = path.join(fixtures, 'less-assets')
+          , manager = new Manager(assets, { compress: true, compilers: compilers });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var style = manager.assetPath('css/foo.less');
+            rimraf.sync(path.join(assets, style));
+            request(style, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'body{color:red}');
+                next(done);
+            });
+        });
+    });
+
     it('should serve up bundles of less assets', function (done) {
         var compilers = {
             '.less': {
