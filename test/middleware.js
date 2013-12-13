@@ -492,4 +492,26 @@ describe('Middleware', function () {
         });
     });
 
+    it('should cleanup old assets', function (done) {
+        rimraf.sync(temp);
+        fs.mkdirSync(temp);
+        fs.writeFileSync(path.join(temp, 'jquery.js'), 'var foo');
+        var old = path.join(temp, 'asset-12345678-jquery.js');
+        fs.writeFileSync(old, '');
+        var manager = new Manager(temp);
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var jquery = manager.assetPath('jquery.js');
+            request(jquery, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'var foo');
+                var files = fs.readdirSync(temp);
+                assert.equal(files.length, 3);
+                assert.equal(files.indexOf('asset-12345678-jquery.js'), -1);
+                next(done);
+            });
+        });
+    });
+
 });
