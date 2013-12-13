@@ -222,8 +222,83 @@ describe('Middleware', function () {
             request(ie8, function (err, response, body) {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 200);
-                assert.equal(response.headers['content-type'], 'application/javascript');
                 assert.equal(body.trim(), 'window.shiv = {};\nwindow.respond = {};');
+                next(done);
+            });
+        });
+    });
+
+    it('should compress javascript assets', function (done) {
+        var assets = path.join(fixtures, 'simple-assets')
+          , manager = new Manager(assets, { compress: true });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var ie8 = manager.assetPath('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
+            rimraf.sync(path.join(assets, ie8));
+            request(ie8, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'window.shiv={},window.respond={};');
+                next(done);
+            });
+        });
+    });
+
+    it('should compress css assets', function (done) {
+        var assets = path.join(fixtures, 'simple-assets')
+          , manager = new Manager(assets, { compress: true });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var style = manager.assetPath('style.css');
+            rimraf.sync(path.join(assets, style));
+            request(style, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'body{color:red}');
+                next(done);
+            });
+        });
+    });
+
+    it('should support custom compressors', function (done) {
+        var compressors = {
+            '.css': function (contents, options, callback) {
+                callback(null, contents.replace(/[\n ]/g, '').replace('red', 'blue'));
+            }
+        };
+        var assets = path.join(fixtures, 'simple-assets')
+          , manager = new Manager(assets, { compress: true, compressors: compressors });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var style = manager.assetPath('style.css');
+            rimraf.sync(path.join(assets, style));
+            request(style, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'body{color:blue;}');
+                next(done);
+            });
+        });
+    });
+
+    it('should send a 500 when a compressor fails', function (done) {
+        var assets = path.join(fixtures, 'invalid-assets')
+          , manager = new Manager(assets, { compress: true });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var requestError;
+            app.use(function (err, request, response, next) {
+                requestError = err;
+                next = next; //-jshint
+                response.send(500);
+            });
+            var invalid = manager.assetPath('invalid.js');
+            rimraf.sync(path.join(assets, invalid));
+            request(invalid, function (err, response) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 500);
+                assert(requestError && requestError.message.indexOf('Failed to compress asset') >= 0,
+                    'Expected an UglifyJS error');
                 next(done);
             });
         });

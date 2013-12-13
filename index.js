@@ -8,4 +8,5 @@ module.exports = assets;
 
 assets.Manager = Manager;
 assets.tags = require('./lib/tags');
+assets.compressors = require('./lib/compressors');
 assets.utils = require('./lib/utils');

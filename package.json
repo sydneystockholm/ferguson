@@ -18,7 +18,9 @@
   "dependencies": {
     "entities": "0.3.0",
     "minimatch": "0.2.12",
-    "async": "0.2.9"
+    "async": "0.2.9",
+    "uglify-js": "2.4.7",
+    "clean-css": "2.0.2"
   },
   "devDependencies": {
     "mocha": "latest",
