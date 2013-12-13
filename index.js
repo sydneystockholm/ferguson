@@ -1,12 +1,12 @@
 var Manager = require('./lib/manager').Manager;
 
-function assets(dir, options) {
+function ferguson(dir, options) {
     return new Manager(dir, options);
 }
 
-module.exports = assets;
+module.exports = ferguson;
 
-assets.Manager = Manager;
-assets.tags = require('./lib/tags');
-assets.compressors = require('./lib/compressors');
-assets.utils = require('./lib/utils');
+ferguson.Manager = Manager;
+ferguson.tags = require('./lib/tags');
+ferguson.compressors = require('./lib/compressors');
+ferguson.utils = require('./lib/utils');
