@@ -1,6 +1,7 @@
 var assert = require('assert')
   , path = require('path')
   , http = require('http')
+  , rimraf = require('rimraf')
   , express = require('express')
   , nunjucks = require('nunjucks')
   , port = 12435;
@@ -143,6 +144,38 @@ describe('Middleware', function () {
             request('/static/jquery.js', function (err, response, body) {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 200);
+                assert.equal(response.headers['content-type'], 'application/javascript');
+                assert.equal(body.trim(), 'window.jQuery = {};');
+                next(done);
+            });
+        });
+    });
+
+    it('should 404 when a compiled asset that\'s unknown to the manager is encountered', function (done) {
+        var manager = new AssetManager(path.join(fixtures, 'simple-assets'), {
+            servePrefix: '/static'
+        });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            request('/static/asset-123456-jquery.js', function (err, response) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 404);
+                next(done);
+            });
+        });
+    });
+
+    it('should compile and serve a single file asset', function (done) {
+        var assets = path.join(fixtures, 'simple-assets');
+        var manager = new AssetManager(assets);
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var jquery = manager.assetPath('jquery.js');
+            rimraf.sync(path.join(assets, jquery));
+            request(jquery, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(response.headers['content-type'], 'application/javascript');
                 assert.equal(body.trim(), 'window.jQuery = {};');
                 next(done);
             });
