@@ -9,8 +9,8 @@
 
 Install the library with npm
 
-```
-npm install ferguson
+```bash
+$ npm install ferguson
 ```
 
 Setup a ferguson instance and bind it to an [express][express] application
@@ -60,21 +60,21 @@ Now you can call `asset('css/foo.styl')` to generate a `<link>` tag that referen
 
 The following options are available when creating a new ferguson instance with `ferguson(dir, options)`
 
-- **hash** (default: `md5`) - the hashing algorithm to use
-- **hashLength** (default: `32`) - the maximum length of the hash in the filenames of compiled assets
-- **viewHelper** (default: `asset`) - the name of the view helper
-- **servePrefix** (default: `/`) - the path to serve assets from
-- **urlPrefix** (default: `null`) - prefix asset URLs with this
-- **maxAge** (default: `2419200000` - 4 weeks) - the *Cache-Control* *max-age* value (in milliseconds)
-- **compress** (default: `false`) - whether to compress assets
-- **hotReload** (default: `false`) - whether to enable hot-reloading of assets
-- **wrapJavascript** (default: `false`) - whether to wrap compiled JS in an IIFE
-- **separateBundles** (default: `false`) - generate separate tags for each asset in a bundle
-- **html5** (default: `false`) - generate HTML5-compatible tags, e.g. omit the *type* attribute from a `<script>` tag
+- **hash** (default: `md5`) - the hashing algorithm to use.
+- **hashLength** (default: `32`) - the maximum length of the hash in the filenames of compiled assets.
+- **viewHelper** (default: `asset`) - the name of the view helper.
+- **servePrefix** (default: `/`) - the path to serve assets from.
+- **urlPrefix** (default: `null`) - prefix asset URLs with this.
+- **maxAge** (default: `2419200000` - 4 weeks) - the *Cache-Control* *max-age* value (in milliseconds).
+- **compress** (default: `false`) - whether to compress assets.
+- **hotReload** (default: `false`) - whether to enable hot-reloading of assets.
+- **wrapJavascript** (default: `false`) - whether to wrap compiled JS in an IIFE.
+- **separateBundles** (default: `false`) - generate separate tags for each asset in a bundle.
+- **html5** (default: `false`) - generate HTML5-compatible tags, e.g. omit the *type* attribute from a `<script>` tag.
 
 The following setup is recommended
 
-```
+```javascript
 var production = process.env.NODE_ENV === 'production';
 var assetManager = ferguson('/path/to/assets', {
     compress: production
@@ -85,21 +85,21 @@ var assetManager = ferguson('/path/to/assets', {
 
 ## Asset Definitions
 
-The following options are available when defining an asset with `asset(file, options)`.
+The following options are available when defining an asset with `asset(file, options)`
 
 - **include** - one or more files that make up the asset bundle. Glob is supported.
 - **urlPrefix** - prefix the asset URL with this. This overrides the library's `urlPrefix` option.
 - **attributes** - an object containing additional HTML attributes.
-- **dependencies** - one or more files that ferguson should take into account when generating cache-busting hashes (see the Compilers section below). Glob is supported.
+- **dependencies** - one or more files that ferguson should take into account when generating cache-busting hashes (see the Compilers section below for an explanation). Glob is supported.
 
-There are two variations of the view helper: one to output the asset's path, and another to output the asset's full URL (if you've provided a `urlPrefix`).
+There are two variations of the view helper: one to output the asset's path and another to output the asset's full URL (if you've provided a `urlPrefix`)
 
-```
+```html
 <script type="text/javascript" src="{{ asset.url('foo.js') }}"></script>
 <script type="text/javascript" src="//cdn.example.com/{{ asset.path('foo.js') }}"></script>
 ```
 
-It's also possible to define assets when you create the ferguson instance
+It's also possible to define assets when you create a ferguson instance
 
 ```javascript
 var assetManager = ferguson('/path/to/assets');
@@ -107,15 +107,15 @@ var assetManager = ferguson('/path/to/assets');
 assetManager.asset('ie8.js', { include: ['html5shiv.js', 'respond.js'] });
 ```
 
-Once defined, assets can be referenced by name, i.e. you don't need to redefine includes, etc.
+Once defined, assets can be referenced by name, i.e. you don't need to specify the options each time
 
-```
+```html
 {{ asset('ie8.js') }}
 ```
 
 ## Caching
 
-Ferguson generates a cache-busting hash based on the contents of each included asset. This means that the compiled assets are safe to cache indefinitely. Any modifications to your assets will cause the hash (and filename) to change, forcing clients to re-download the asset. The library will automatically cleanup stale compiled assets.
+Ferguson generates a cache-busting hash based on the contents of each included asset. This means that the compiled assets are safe to cache indefinitely. Any modifications to your assets will cause the hash (and filename) to change, forcing clients to re-download the asset. The library will automatically cleanup old compiled assets.
 
 Ferguson will write the compiled assets to the static assets directory that you specify. This allows you to serve up raw and compiled assets from the same place. For example, it allows nginx users to use a `try_files` to serve up all assets directly.
 
@@ -147,7 +147,7 @@ Let's say you have a file called `style.less` which `@import`'s a `variables.les
 {{ asset('style.less', { dependencies: ['variables.less'] }) }}
 ```
 
-Ferguson will generate the cache-busting hash based on the contents of both `style.less` and `variables.less`. When you update either file the hash will change and clients will need to download a new file. Without specifying the dependency, only updates to the `style.less` file would trigger a new modify the hash.
+Ferguson will generate the cache-busting hash based on the contents of both `style.less` and `variables.less`. Without specifying the dependency, only updates to `style.less` would cause a new hash to be generated.
 
 A lazy way to specify dependencies is to use a glob pattern that matches everything
 
@@ -157,7 +157,7 @@ A lazy way to specify dependencies is to use a glob pattern that matches everyth
 
 ## Compressors
 
-Ferguson ships with a JS minifier ([uglifyjs][uglifyjs]) and CSS compressor ([clean-css][clean-css]) which are both enabled when the `compress` option is set.
+Ferguson ships with a JS minifier ([uglifyjs][uglifyjs]) and CSS compressor ([clean-css][clean-css]) which are both enabled when the `compress` option is true.
 
 You can add additional compressors or override an existing one
 
@@ -183,7 +183,7 @@ assetManager.registerTagFormat('.js', function (url, options, attributes) {
 Alternatively, you could use the `asset.url()` view helper to output the asset URL directly
 
 ```html
-<custom-tag src="{{ asset.url('foo.js') }}" />';
+<custom-tag src="{{ asset.url('foo.js') }}" />
 ```
 
 ## Error Handling
@@ -259,3 +259,4 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 [clean-css]: https://github.com/GoalSmashers/clean-css
 [cluster]: http://nodejs.org/api/cluster.html
 [less]: https://github.com/less/less.js/
+[browserify]: https://github.com/substack/node-browserify
