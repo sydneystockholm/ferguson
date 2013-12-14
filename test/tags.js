@@ -2,11 +2,11 @@ var assert = require('assert')
   , path = require('path')
   , format = require('util').format;
 
-var Manager = require('../').Manager
+var Ferguson = require('../').Ferguson
   , fixtures = path.join(__dirname, 'fixtures');
 
 function setup(directory, options) {
-    return new Manager(path.join(fixtures, directory), options);
+    return new Ferguson(path.join(fixtures, directory), options);
 }
 
 describe('Tags', function () {

@@ -4,10 +4,10 @@ var assert = require('assert')
 describe('Exports', function () {
 
     it('should provide a shortcut for instantiating an asset manager', function () {
-        var Manager = exports.Manager;
-        assert(typeof Manager, 'function', 'Expected exports.Manager to exist');
+        var Ferguson = exports.Ferguson;
+        assert(typeof Ferguson, 'function', 'Expected exports.Ferguson to exist');
         var instance = exports('/tmp');
-        assert(instance instanceof Manager, 'Expected a shortcut function for instantiating a Manager');
+        assert(instance instanceof Ferguson, 'Expected a shortcut function for instantiating a Ferguson');
     });
 
     it('should export the tag formats and helpers', function () {

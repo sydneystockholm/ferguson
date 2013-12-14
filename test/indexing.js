@@ -3,14 +3,14 @@ var assert = require('assert')
   , path = require('path')
   , fs = require('fs');
 
-var Manager = require('../').Manager
+var Ferguson = require('../').Ferguson
   , fixtures = path.join(__dirname, 'fixtures')
   , temp = path.join(__dirname, 'tmp');
 
 describe('Indexing', function () {
 
     it('should find all assets in the specified static assets directory', function () {
-        var manager = new Manager(path.join(fixtures, 'walk-directory'));
+        var manager = new Ferguson(path.join(fixtures, 'walk-directory'));
         var files = manager.getAssets().map(function (file) {
             return file.name;
         });
@@ -23,7 +23,7 @@ describe('Indexing', function () {
     });
 
     it('should emit an error if the static assets directory doesn\'t exist', function () {
-        var manager = new Manager(path.join(fixtures, 'not-existent'))
+        var manager = new Ferguson(path.join(fixtures, 'not-existent'))
           , had_error = false;
         manager.on('error', function (err) {
             assert(err.message && err.message.indexOf('ENOENT') >= 0, 'Expected an ENOENT error');
@@ -34,7 +34,7 @@ describe('Indexing', function () {
     });
 
     it('should index the contents of the static assets directory', function () {
-        var manager = new Manager(path.join(fixtures, 'index-directory'));
+        var manager = new Ferguson(path.join(fixtures, 'index-directory'));
         manager.indexAssets();
         assert.deepEqual(Object.keys(manager.assets).sort(), [
             'css/styles.css'
@@ -52,7 +52,7 @@ describe('Indexing', function () {
         rimraf.sync(temp);
         fs.mkdirSync(temp);
         fs.writeFileSync(path.join(temp, 'jquery.js'), 'var foo');
-        var manager = new Manager(temp);
+        var manager = new Ferguson(temp);
         manager.indexAssets();
         //Note: hashAssets() returns true when the manifest required an update
         //(i.e. at least one file needed to be rehashed).
@@ -70,7 +70,7 @@ describe('Indexing', function () {
         fs.mkdirSync(temp);
         fs.writeFileSync(path.join(temp, 'jquery.js'), 'var foo');
         fs.writeFileSync(path.join(temp, '.asset-manifest'), '<not-json>');
-        var manager = new Manager(temp);
+        var manager = new Ferguson(temp);
         manager.indexAssets();
         //Note: hashAssets() returns true when the manifest required an update
         //(i.e. at least one file needed to be rehashed).
@@ -82,7 +82,7 @@ describe('Indexing', function () {
     });
 
     it('should emit an error when the manifest can\'t be written to', function () {
-        var manager = new Manager(path.join(fixtures, 'invalid-manifest'))
+        var manager = new Ferguson(path.join(fixtures, 'invalid-manifest'))
           , had_error = false;
         manager.on('error', function (err) {
             assert(err.message && err.message.indexOf('EISDIR') >= 0, 'Expected an EISDIR error');
@@ -97,7 +97,7 @@ describe('Indexing', function () {
         rimraf.sync(temp);
         fs.mkdirSync(temp);
         fs.writeFileSync(path.join(temp, 'jquery.js'), 'var foo');
-        var manager = new Manager(temp, { hash: 'sha1' });
+        var manager = new Ferguson(temp, { hash: 'sha1' });
         manager.indexAssets();
         manager.hashAssets();
         assert.equal(manager.assets['jquery.js'].hash, '7a0b376193fcfec6f5619caf59df33140f93252e');

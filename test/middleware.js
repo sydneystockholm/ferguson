@@ -8,7 +8,7 @@ var assert = require('assert')
   , fs = require('fs')
   , port = 12435;
 
-var Manager = require('../').Manager
+var Ferguson = require('../').Ferguson
   , fixtures = path.join(__dirname, 'fixtures')
   , temp = path.join(__dirname, 'tmp')
   , temp2 = path.join(__dirname, 'tmp2');
@@ -55,7 +55,7 @@ function mocks(callback) {
 describe('Middleware', function () {
 
     it('should provide express middleware', function (done) {
-        var manager = new Manager(path.join(fixtures, 'empty'));
+        var manager = new Ferguson(path.join(fixtures, 'empty'));
         mocks(function (app, request, next) {
             manager.bind(app);
             app.get('/foo.txt', function (request, response) {
@@ -71,7 +71,7 @@ describe('Middleware', function () {
     });
 
     it('should provide a view helper for defining assets', function (done) {
-        var manager = new Manager(path.join(fixtures, 'empty'));
+        var manager = new Ferguson(path.join(fixtures, 'empty'));
         manager.asset = function () {
             return 'foo';
         };
@@ -90,7 +90,7 @@ describe('Middleware', function () {
     });
 
     it('should provide a view helper for defining asset paths', function (done) {
-        var manager = new Manager(path.join(fixtures, 'empty'));
+        var manager = new Ferguson(path.join(fixtures, 'empty'));
         manager.assetPath = function () {
             return 'foo';
         };
@@ -109,7 +109,7 @@ describe('Middleware', function () {
     });
 
     it('should provide a view helper for defining asset urls', function (done) {
-        var manager = new Manager(path.join(fixtures, 'empty'), {
+        var manager = new Ferguson(path.join(fixtures, 'empty'), {
             urlPrefix: 'http://example.com/'
         });
         manager.assetPath = function (identifier) {
@@ -130,7 +130,7 @@ describe('Middleware', function () {
     });
 
     it('should let users modify the view helper name', function (done) {
-        var manager = new Manager(path.join(fixtures, 'empty'), {
+        var manager = new Ferguson(path.join(fixtures, 'empty'), {
             viewHelper: 'foobarbaz'
         });
         manager.asset = function () {
@@ -151,7 +151,7 @@ describe('Middleware', function () {
     });
 
     it('should serve static assets', function (done) {
-        var manager = new Manager(path.join(fixtures, 'simple-assets'));
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'));
         mocks(function (app, request, next) {
             manager.bind(app);
             request('/jquery.js', function (err, response, body) {
@@ -165,7 +165,7 @@ describe('Middleware', function () {
     });
 
     it('should serve static assets with a configurable max-age', function (done) {
-        var manager = new Manager(path.join(fixtures, 'simple-assets'), {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'), {
             maxAge: 86400000
         });
         mocks(function (app, request, next) {
@@ -182,7 +182,7 @@ describe('Middleware', function () {
     });
 
     it('should serve static assets from a configurable prefix', function (done) {
-        var manager = new Manager(path.join(fixtures, 'simple-assets'), {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'), {
             servePrefix: '/static'
         });
         mocks(function (app, request, next) {
@@ -198,7 +198,7 @@ describe('Middleware', function () {
     });
 
     it('should 404 when a compiled asset that\'s unknown to the manager is encountered', function (done) {
-        var manager = new Manager(path.join(fixtures, 'simple-assets'), {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'), {
             servePrefix: '/static'
         });
         mocks(function (app, request, next) {
@@ -213,7 +213,7 @@ describe('Middleware', function () {
 
     it('should compile and serve a single file asset', function (done) {
         var assets = path.join(fixtures, 'simple-assets')
-          , manager = new Manager(assets);
+          , manager = new Ferguson(assets);
         mocks(function (app, request, next) {
             manager.bind(app);
             var jquery = manager.assetPath('jquery.js');
@@ -233,7 +233,7 @@ describe('Middleware', function () {
         fs.mkdirSync(temp);
         var jqueryPath = path.join(temp, 'jquery.js');
         fs.writeFileSync(jqueryPath, 'var foo');
-        var manager = new Manager(temp);
+        var manager = new Ferguson(temp);
         mocks(function (app, request, next) {
             manager.bind(app);
             var requestError;
@@ -258,7 +258,7 @@ describe('Middleware', function () {
 
     it('should serve up bundles of assets', function (done) {
         var assets = path.join(fixtures, 'simple-assets')
-          , manager = new Manager(assets);
+          , manager = new Ferguson(assets);
         mocks(function (app, request, next) {
             manager.bind(app);
             var ie8 = manager.assetPath('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
@@ -274,7 +274,7 @@ describe('Middleware', function () {
 
     it('should serve up bundles of assets from a subdirectory', function (done) {
         var assets = path.join(fixtures, 'simple-assets')
-          , manager = new Manager(assets);
+          , manager = new Ferguson(assets);
         mocks(function (app, request, next) {
             manager.bind(app);
             var ie8 = manager.assetPath('js/ie8.js',
@@ -291,7 +291,7 @@ describe('Middleware', function () {
 
     it('should compress javascript assets', function (done) {
         var assets = path.join(fixtures, 'simple-assets')
-          , manager = new Manager(assets, { compress: true });
+          , manager = new Ferguson(assets, { compress: true });
         mocks(function (app, request, next) {
             manager.bind(app);
             var ie8 = manager.assetPath('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
@@ -307,7 +307,7 @@ describe('Middleware', function () {
 
     it('should compress css assets', function (done) {
         var assets = path.join(fixtures, 'simple-assets')
-          , manager = new Manager(assets, { compress: true });
+          , manager = new Ferguson(assets, { compress: true });
         mocks(function (app, request, next) {
             manager.bind(app);
             var style = manager.assetPath('style.css');
@@ -328,7 +328,7 @@ describe('Middleware', function () {
             }
         };
         var assets = path.join(fixtures, 'simple-assets')
-          , manager = new Manager(assets, { compress: true, compressors: compressors });
+          , manager = new Ferguson(assets, { compress: true, compressors: compressors });
         mocks(function (app, request, next) {
             manager.bind(app);
             var style = manager.assetPath('style.css');
@@ -344,7 +344,7 @@ describe('Middleware', function () {
 
     it('should send a 500 when a compressor fails', function (done) {
         var assets = path.join(fixtures, 'invalid-assets')
-          , manager = new Manager(assets, { compress: true });
+          , manager = new Ferguson(assets, { compress: true });
         mocks(function (app, request, next) {
             manager.bind(app);
             var requestError;
@@ -375,7 +375,7 @@ describe('Middleware', function () {
             }
         };
         var assets = path.join(fixtures, 'less-assets')
-          , manager = new Manager(assets, { compress: true, compilers: compilers });
+          , manager = new Ferguson(assets, { compress: true, compilers: compilers });
         mocks(function (app, request, next) {
             manager.bind(app);
             var style = manager.assetPath('foo.css');
@@ -399,7 +399,7 @@ describe('Middleware', function () {
             }
         };
         var assets = path.join(fixtures, 'less-assets')
-          , manager = new Manager(assets, { compress: true, compilers: compilers });
+          , manager = new Ferguson(assets, { compress: true, compilers: compilers });
         mocks(function (app, request, next) {
             manager.bind(app);
             var style = manager.assetPath('css/foo.less');
@@ -423,7 +423,7 @@ describe('Middleware', function () {
             }
         };
         var assets = path.join(fixtures, 'less-assets')
-          , manager = new Manager(assets, { compress: true, compilers: compilers });
+          , manager = new Ferguson(assets, { compress: true, compilers: compilers });
         mocks(function (app, request, next) {
             manager.bind(app);
             var style = manager.assetPath('styles.css', { include: [ 'foo.css', 'bar.css' ] });
@@ -447,7 +447,7 @@ describe('Middleware', function () {
             }
         };
         var assets = path.join(fixtures, 'less-assets')
-          , manager = new Manager(assets, { compress: true, compilers: compilers });
+          , manager = new Ferguson(assets, { compress: true, compilers: compilers });
         mocks(function (app, request, next) {
             manager.bind(app);
             var requestError;
@@ -470,7 +470,7 @@ describe('Middleware', function () {
     });
 
     it('should be safe to add the middleware to multiple express apps', function (done) {
-        var manager = new Manager(path.join(fixtures, 'empty'));
+        var manager = new Ferguson(path.join(fixtures, 'empty'));
         mocks(function (app, request, next) {
             manager.bind(app);
             app.get('/foo.txt', function (request, response) {
@@ -500,7 +500,7 @@ describe('Middleware', function () {
 
     it('should provide helpers for registering compilers and compressors', function (done) {
         var assets = path.join(fixtures, 'less-assets')
-          , manager = new Manager(assets, { compress: true });
+          , manager = new Ferguson(assets, { compress: true });
         manager.registerCompiler('.less', '.css', function (contents, options, callback) {
             callback(new Error('Oops')); //To be replaced
         });
@@ -525,7 +525,7 @@ describe('Middleware', function () {
 
     it('should have an option to wrap Javascript in an IIFE', function (done) {
         var assets = path.join(fixtures, 'simple-assets')
-          , manager = new Manager(assets, { wrapJavascript: true, compress: true });
+          , manager = new Ferguson(assets, { wrapJavascript: true, compress: true });
         mocks(function (app, request, next) {
             manager.bind(app);
             var ie8 = manager.assetPath('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
@@ -541,7 +541,7 @@ describe('Middleware', function () {
 
     it('should only compile assets once, even with multiple concurrent requests', function (done) {
         var assets = path.join(fixtures, 'simple-assets')
-          , manager = new Manager(assets);
+          , manager = new Ferguson(assets);
         mocks(function (app, request, next) {
             manager.bind(app);
             var jquery = manager.assetPath('jquery.js');
@@ -578,7 +578,7 @@ describe('Middleware', function () {
 
     it('should send 500 to all concurrent requests when compilation fails', function (done) {
         var assets = path.join(fixtures, 'invalid-assets')
-          , manager = new Manager(assets, { compress: true });
+          , manager = new Ferguson(assets, { compress: true });
         mocks(function (app, request, next) {
             manager.bind(app);
             var requestErrors = [];
@@ -624,7 +624,7 @@ describe('Middleware', function () {
         fs.writeFileSync(path.join(temp, 'jquery.js'), 'var foo');
         var old = path.join(temp, 'asset-12345678-jquery.js');
         fs.writeFileSync(old, '');
-        var manager = new Manager(temp);
+        var manager = new Ferguson(temp);
         mocks(function (app, request, next) {
             manager.bind(app);
             var jquery = manager.assetPath('jquery.js');
@@ -647,7 +647,7 @@ describe('Middleware', function () {
         fs.mkdirSync(temp);
         var jquery = path.join(temp, 'jquery.js');
         fs.writeFileSync(jquery, 'var foo');
-        var manager = new Manager(temp, {
+        var manager = new Ferguson(temp, {
             hotReload: true
         });
         mocks(function (app, request, next) {
@@ -678,7 +678,7 @@ describe('Middleware', function () {
         fs.mkdirSync(temp);
         var jquery = path.join(temp, 'jquery.js');
         fs.writeFileSync(jquery, 'var foo');
-        var manager = new Manager(temp, {
+        var manager = new Ferguson(temp, {
             hotReload: true
         });
         mocks(function (app, request, next) {
@@ -707,7 +707,7 @@ describe('Middleware', function () {
         fs.mkdirSync(temp);
         var jquery = path.join(temp, 'jquery.js');
         fs.writeFileSync(jquery, 'var foo');
-        var manager = new Manager(temp, {
+        var manager = new Ferguson(temp, {
             hotReload: true
         });
         mocks(function (app, request, next) {
@@ -744,7 +744,7 @@ describe('Middleware', function () {
           , css = path.join(temp, 'css');
         fs.writeFileSync(jquery, 'var foo');
         fs.writeFileSync(jquery2, 'var bar');
-        var manager = new Manager(temp, {
+        var manager = new Ferguson(temp, {
             hotReload: true
         });
         mocks(function (app, request, next) {
