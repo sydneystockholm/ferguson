@@ -92,11 +92,23 @@ The following options are available when defining an asset with `asset(file, opt
 - **attributes** - an object containing additional HTML attributes.
 - **dependencies** - one or more files that ferguson should take into account when generating cache-busting hashes (see the Compilers section below for an explanation). Glob is supported.
 
+Here's an example definition
+
+```html
+{{ asset('foo.jpg', { attributes: { alt: 'Foo & bar' }, urlPrefix: 'http://example.com' }) }}
+```
+
+which generates
+
+```html
+<img src="http://example.com/foo.jpg" alt="Foo &amp; bar" />
+```
+
 There are two variations of the view helper: one to output the asset's path and another to output the asset's full URL (if you've provided a `urlPrefix`)
 
 ```html
 <script type="text/javascript" src="{{ asset.url('foo.js') }}"></script>
-<script type="text/javascript" src="//cdn.example.com/{{ asset.path('foo.js') }}"></script>
+<script type="text/javascript" src="//example.com{{ asset.path('foo.js') }}"></script>
 ```
 
 It's also possible to define assets when you create a ferguson instance
