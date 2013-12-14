@@ -1,4 +1,4 @@
-**Ferguson** is a highly-configurable asset manager for node.js
+**Ferguson** is a highly-configurable asset manager for node.js with the following features
 
 - Asset compilation and compression using whatever framework you like
 - Hot-reloading
@@ -43,7 +43,7 @@ which generates something like
 <link rel="stylesheet" href="/css/asset-b5d5d67465f661c1a12da394e502b391-styles.css" />
 ```
 
-Assets are then compiled and compressed on demand. Compiled asset filenames only change when one of the included assets is modified, i.e. they're safe to cache forever.
+Assets are compiled and compressed on demand. Compiled asset filenames only change when one of the included assets is modified, i.e. they're safe to cache forever.
 
 Adding your own formats is easy
 
