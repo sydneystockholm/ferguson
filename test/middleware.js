@@ -134,7 +134,6 @@ describe('Middleware', function () {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 200);
                 assert.equal(response.headers['content-type'], 'application/javascript');
-                assert.equal(response.headers['cache-control'], 'public, max-age=0');
                 assert.equal(body.trim(), 'window.jQuery = {};');
                 next(done);
             });
