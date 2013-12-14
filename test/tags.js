@@ -98,7 +98,7 @@ describe('Tags', function () {
 
     it('should prefix the asset URLs with a custom prefix defined with the asset', function () {
         var manager = setup('simple-assets', { hashLength: 6 });
-        assert.equal(manager.asset('image.png', { prefix: 'http://cdn.foo.com/' }),
+        assert.equal(manager.asset('image.png', { urlPrefix: 'http://cdn.foo.com/' }),
             '<img src="http://cdn.foo.com/asset-74be16-image.png" />');
     });
 
@@ -113,10 +113,10 @@ describe('Tags', function () {
 
     it('should prefer the prefix specified with the asset definition', function () {
         var manager = setup('simple-assets', {
-            prefix: 'http://cdn.foo.com/'
+            urlPrefix: 'http://cdn.foo.com/'
           , hashLength: 6
         });
-        assert.equal(manager.asset('image.png', { prefix: 'http://elsewhere.com' }),
+        assert.equal(manager.asset('image.png', { urlPrefix: 'http://elsewhere.com' }),
             '<img src="http://elsewhere.com/asset-74be16-image.png" />');
     });
 
@@ -127,9 +127,9 @@ describe('Tags', function () {
         });
         assert.equal(manager.asset('image.png'),
             '<img src="/static/asset-74be16-image.png" />');
-        assert.equal(manager.asset('image.png', { prefix: 'http://cdn.foo.com/' }),
+        assert.equal(manager.asset('image.png', { urlPrefix: 'http://cdn.foo.com/' }),
             '<img src="http://cdn.foo.com/static/asset-74be16-image.png" />');
-        assert.equal(manager.asset('image.png', { prefix: 'http://cdn.foo.com' }),
+        assert.equal(manager.asset('image.png', { urlPrefix: 'http://cdn.foo.com' }),
             '<img src="http://cdn.foo.com/static/asset-74be16-image.png" />');
     });
 
