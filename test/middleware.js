@@ -43,7 +43,10 @@ function mocks(callback) {
             });
         }).end();
     }
+    var complete = false;
     callback(app, request, function (done) {
+        if (complete) return;
+        complete = true;
         server.close();
         done();
     });
