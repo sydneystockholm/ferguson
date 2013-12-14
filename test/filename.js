@@ -5,10 +5,7 @@ var Manager = require('../').Manager
   , fixtures = path.join(__dirname, 'fixtures');
 
 function setup(directory, options) {
-    var manager = new Manager(path.join(fixtures, directory), options);
-    manager.indexAssets();
-    manager.hashAssets();
-    return manager;
+    return new Manager(path.join(fixtures, directory), options);
 }
 
 describe('Filenames', function () {

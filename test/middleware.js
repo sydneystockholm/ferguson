@@ -57,7 +57,7 @@ describe('Middleware', function () {
     it('should provide express middleware', function (done) {
         var manager = new Manager(path.join(fixtures, 'empty'));
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             app.get('/foo.txt', function (request, response) {
                 response.send('foo');
             });
@@ -76,7 +76,7 @@ describe('Middleware', function () {
             return 'foo';
         };
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             app.get('/', function (request, response) {
                 response.render('{{ asset("foo.css") }}');
             });
@@ -95,7 +95,7 @@ describe('Middleware', function () {
             return 'foo';
         };
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             app.get('/', function (request, response) {
                 response.render('{{ asset.path("foo.css") }}');
             });
@@ -116,7 +116,7 @@ describe('Middleware', function () {
             return '/' + identifier;
         };
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             app.get('/', function (request, response) {
                 response.render('{{ asset.url("foo.css") }}');
             });
@@ -137,7 +137,7 @@ describe('Middleware', function () {
             return 'foo';
         };
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             app.get('/', function (request, response) {
                 response.render('{{ foobarbaz("foo.css") }}');
             });
@@ -153,7 +153,7 @@ describe('Middleware', function () {
     it('should serve static assets', function (done) {
         var manager = new Manager(path.join(fixtures, 'simple-assets'));
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             request('/jquery.js', function (err, response, body) {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 200);
@@ -169,7 +169,7 @@ describe('Middleware', function () {
             maxAge: 86400000
         });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             request('/jquery.js', function (err, response, body) {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 200);
@@ -186,7 +186,7 @@ describe('Middleware', function () {
             servePrefix: '/static'
         });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             request('/static/jquery.js', function (err, response, body) {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 200);
@@ -202,7 +202,7 @@ describe('Middleware', function () {
             servePrefix: '/static'
         });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             request('/static/asset-123456-jquery.js', function (err, response) {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 404);
@@ -215,7 +215,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'simple-assets')
           , manager = new Manager(assets);
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var jquery = manager.assetPath('jquery.js');
             rimraf.sync(path.join(assets, jquery));
             request(jquery, function (err, response, body) {
@@ -235,7 +235,7 @@ describe('Middleware', function () {
         fs.writeFileSync(jqueryPath, 'var foo');
         var manager = new Manager(temp);
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var requestError;
             app.use(function (err, request, response, next) {
                 requestError = err;
@@ -260,7 +260,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'simple-assets')
           , manager = new Manager(assets);
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var ie8 = manager.assetPath('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
             rimraf.sync(path.join(assets, ie8));
             request(ie8, function (err, response, body) {
@@ -276,7 +276,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'simple-assets')
           , manager = new Manager(assets);
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var ie8 = manager.assetPath('js/ie8.js',
                 { include: [ 'js/html5shiv.js', 'js/respond.js' ] });
             rimraf.sync(path.join(assets, ie8));
@@ -293,7 +293,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'simple-assets')
           , manager = new Manager(assets, { compress: true });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var ie8 = manager.assetPath('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
             rimraf.sync(path.join(assets, ie8));
             request(ie8, function (err, response, body) {
@@ -309,7 +309,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'simple-assets')
           , manager = new Manager(assets, { compress: true });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var style = manager.assetPath('style.css');
             rimraf.sync(path.join(assets, style));
             request(style, function (err, response, body) {
@@ -330,7 +330,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'simple-assets')
           , manager = new Manager(assets, { compress: true, compressors: compressors });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var style = manager.assetPath('style.css');
             rimraf.sync(path.join(assets, style));
             request(style, function (err, response, body) {
@@ -346,7 +346,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'invalid-assets')
           , manager = new Manager(assets, { compress: true });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var requestError;
             app.use(function (err, request, response, next) {
                 requestError = err;
@@ -377,7 +377,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'less-assets')
           , manager = new Manager(assets, { compress: true, compilers: compilers });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var style = manager.assetPath('foo.css');
             rimraf.sync(path.join(assets, style));
             request(style, function (err, response, body) {
@@ -401,7 +401,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'less-assets')
           , manager = new Manager(assets, { compress: true, compilers: compilers });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var style = manager.assetPath('css/foo.less');
             rimraf.sync(path.join(assets, style));
             request(style, function (err, response, body) {
@@ -425,7 +425,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'less-assets')
           , manager = new Manager(assets, { compress: true, compilers: compilers });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var style = manager.assetPath('styles.css', { include: [ 'foo.css', 'bar.css' ] });
             rimraf.sync(path.join(assets, style));
             request(style, function (err, response, body) {
@@ -449,7 +449,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'less-assets')
           , manager = new Manager(assets, { compress: true, compilers: compilers });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var requestError;
             app.use(function (err, request, response, next) {
                 requestError = err;
@@ -472,7 +472,7 @@ describe('Middleware', function () {
     it('should be safe to add the middleware to multiple express apps', function (done) {
         var manager = new Manager(path.join(fixtures, 'empty'));
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             app.get('/foo.txt', function (request, response) {
                 response.send('foo');
             });
@@ -481,7 +481,7 @@ describe('Middleware', function () {
                 assert.equal(response.statusCode, 200);
                 assert.equal(body, 'foo');
                 mocks(function (app2, request2, next2) {
-                    manager.init(app2);
+                    manager.bind(app2);
                     app2.get('/foo.txt', function (request, response) {
                         response.send('foo');
                     });
@@ -511,7 +511,7 @@ describe('Middleware', function () {
             callback(null, contents.replace(/[\n ]/g, '').replace('body', 'h1'));
         });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var style = manager.assetPath('foo.css');
             rimraf.sync(path.join(assets, style));
             request(style, function (err, response, body) {
@@ -527,7 +527,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'simple-assets')
           , manager = new Manager(assets, { wrapJavascript: true, compress: true });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var ie8 = manager.assetPath('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
             rimraf.sync(path.join(assets, ie8));
             request(ie8, function (err, response, body) {
@@ -543,7 +543,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'simple-assets')
           , manager = new Manager(assets);
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var jquery = manager.assetPath('jquery.js');
             rimraf.sync(path.join(assets, jquery));
             var compilations = 0;
@@ -580,7 +580,7 @@ describe('Middleware', function () {
         var assets = path.join(fixtures, 'invalid-assets')
           , manager = new Manager(assets, { compress: true });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var requestErrors = [];
             app.use(function (err, request, response, next) {
                 requestErrors.push(err);
@@ -626,7 +626,7 @@ describe('Middleware', function () {
         fs.writeFileSync(old, '');
         var manager = new Manager(temp);
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var jquery = manager.assetPath('jquery.js');
             request(jquery, function (err, response, body) {
                 assert.ifError(err);
@@ -651,7 +651,7 @@ describe('Middleware', function () {
             hotReload: true
         });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var compiled = manager.assetPath('jquery.js');
             request(compiled, function (err, response, body) {
                 assert.ifError(err);
@@ -682,7 +682,7 @@ describe('Middleware', function () {
             hotReload: true
         });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var compiled = manager.assetPath('jquery.js');
             request(compiled, function (err, response, body) {
                 assert.ifError(err);
@@ -711,7 +711,7 @@ describe('Middleware', function () {
             hotReload: true
         });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var compiled = manager.assetPath('jquery.js');
             request(compiled, function (err, response, body) {
                 assert.ifError(err);
@@ -748,7 +748,7 @@ describe('Middleware', function () {
             hotReload: true
         });
         mocks(function (app, request, next) {
-            manager.init(app);
+            manager.bind(app);
             var compiled = manager.assetPath('jquery.js');
             request(compiled, function (err, response, body) {
                 assert.ifError(err);
