@@ -94,14 +94,14 @@ The following options are available when defining an asset with `asset(file, opt
 
 Here's an example definition
 
-```html
+```
 {{ asset('foo.jpg', { attributes: { alt: 'Foo & bar' }, urlPrefix: 'http://example.com' }) }}
 ```
 
 which generates
 
 ```html
-<img src="http://example.com/foo.jpg" alt="Foo &amp; bar" />
+<img src="http://example.com/asset-d3b07384d113edec-foo.jpg" alt="Foo &amp; bar" />
 ```
 
 There are two variations of the view helper: one to output the asset's path and another to output the asset's full URL (if you've provided a `urlPrefix`)
