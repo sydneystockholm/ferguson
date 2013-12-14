@@ -99,10 +99,28 @@ describe('Tags', function () {
             '<img src="/asset-74be16-image.png" alt="Foo &amp; bar" />');
     });
 
-    it('should prefix the asset URLs with a custom prefix', function () {
+    it('should prefix the asset URLs with a custom prefix defined with the asset', function () {
         var manager = setup('simple-assets', { hashLength: 6 });
         assert.equal(manager.asset('image.png', { prefix: 'http://cdn.foo.com/' }),
             '<img src="http://cdn.foo.com/asset-74be16-image.png" />');
+    });
+
+    it('should prefix the asset URLs with a custom prefix defined in options', function () {
+        var manager = setup('simple-assets', {
+            urlPrefix: 'http://cdn.foo.com/'
+          , hashLength: 6
+        });
+        assert.equal(manager.asset('image.png'),
+            '<img src="http://cdn.foo.com/asset-74be16-image.png" />');
+    });
+
+    it('should prefer the prefix specified with the asset definition', function () {
+        var manager = setup('simple-assets', {
+            prefix: 'http://cdn.foo.com/'
+          , hashLength: 6
+        });
+        assert.equal(manager.asset('image.png', { prefix: 'http://elsewhere.com' }),
+            '<img src="http://elsewhere.com/asset-74be16-image.png" />');
     });
 
     it('should prefix the asset URLs with the path prefix from options', function () {
