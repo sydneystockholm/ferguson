@@ -105,6 +105,27 @@ describe('Middleware', function () {
         });
     });
 
+    it('should provide a view helper for defining asset urls', function (done) {
+        var manager = new Manager(path.join(fixtures, 'empty'), {
+            urlPrefix: 'http://example.com/'
+        });
+        manager.assetPath = function (identifier) {
+            return '/' + identifier;
+        };
+        mocks(function (app, request, next) {
+            manager.init(app);
+            app.get('/', function (request, response) {
+                response.render('{{ asset.url("foo.css") }}');
+            });
+            request('/', function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body, 'http://example.com/foo.css');
+                next(done);
+            });
+        });
+    });
+
     it('should let users modify the view helper name', function (done) {
         var manager = new Manager(path.join(fixtures, 'empty'), {
             viewHelper: 'foobarbaz'
