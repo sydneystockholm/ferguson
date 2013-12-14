@@ -553,6 +553,48 @@ describe('Middleware', function () {
         });
     });
 
+    it('should send 500 to all concurrent requests when compilation fails', function (done) {
+        var assets = path.join(fixtures, 'invalid-assets')
+          , manager = new Manager(assets, { compress: true });
+        mocks(function (app, request, next) {
+            manager.init(app);
+            var requestErrors = [];
+            app.use(function (err, request, response, next) {
+                requestErrors.push(err);
+                next = next; //-jshint
+                response.send(500);
+            });
+            var jquery = manager.assetPath('invalid.js');
+            rimraf.sync(path.join(assets, jquery));
+            var compilations = 0;
+            var compile = manager.compileAsset;
+            manager.compileAsset = function () {
+                compilations++;
+                compile.apply(this, arguments);
+            };
+            var requests = 3
+              , complete = false
+              , remaining = requests
+              , pos = 0;
+            while (++pos <= requests) {
+                request(jquery, function (err, response) {
+                    if (complete) {
+                        return;
+                    } else if (err) {
+                        complete = true;
+                        throw err;
+                    }
+                    assert.equal(response.statusCode, 500);
+                    if (!--remaining) {
+                        assert.equal(compilations, 1);
+                        assert.equal(requestErrors.length, 3);
+                        next(done);
+                    }
+                });
+            }
+        });
+    });
+
     it('should cleanup old assets', function (done) {
         rimraf.sync(temp);
         fs.mkdirSync(temp);
