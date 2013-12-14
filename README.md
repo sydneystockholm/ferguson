@@ -36,11 +36,11 @@ Your templates now have access to a view helper
 which generates something like
 
 ```html
-<link rel="shortcut icon" href="/asset-a2029888991a8a83377fea454686b636-favicon.ico" />
+<link rel="shortcut icon" href="/asset-a2029888991a8a83-favicon.ico" />
 <!--[if lt IE 9]>
-  <script src="/js/asset-0ba08226c3bd0e463b6a9035415d6151-ie8.js" type="text/javascript"></script>
+  <script src="/js/asset-0ba08226c3bd0e46-ie8.js" type="text/javascript"></script>
 <![endif]-->
-<link rel="stylesheet" href="/css/asset-b5d5d67465f661c1a12da394e502b391-styles.css" />
+<link rel="stylesheet" href="/css/asset-b5d5d67465f661c1-styles.css" />
 ```
 
 Assets are compiled and compressed on demand. Compiled asset filenames only change when one of the included assets is modified, i.e. they're safe to cache forever.
@@ -61,7 +61,7 @@ Now you can call `asset('css/foo.styl')` to generate a `<link>` tag that referen
 The following options are available when creating a new ferguson instance with `ferguson(dir, options)`
 
 - **hash** (default: `md5`) - the hashing algorithm to use.
-- **hashLength** (default: `32`) - the maximum length of the hash in the filenames of compiled assets.
+- **hashLength** (default: `16`) - the maximum length of the hash in the filenames of compiled assets.
 - **viewHelper** (default: `asset`) - the name of the view helper.
 - **servePrefix** (default: `/`) - the path to serve assets from.
 - **urlPrefix** (default: `null`) - prefix asset URLs with this.

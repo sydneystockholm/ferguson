@@ -149,17 +149,17 @@ describe('Tags', function () {
         };
         var manager = setup('less-assets', { compilers: compilers });
         assert.equal(manager.asset('foo.less'),
-            '<link href="/asset-a2029888991a8a83377fea454686b636-foo.css" rel="stylesheet" />');
+            '<link href="/asset-a2029888991a8a83-foo.css" rel="stylesheet" />');
     });
 
     it('should only require the user to define an asset once', function () {
         var manager = setup('simple-assets');
         assert.equal(manager.asset('ie8.js',
             { include: [ 'html5shiv.js', 'respond.js' ], attributes: { 'class': 'bar' }}),
-            '<script src="/asset-b5d5d67465f661c1a12da394e502b391-ie8.js" ' +
+            '<script src="/asset-b5d5d67465f661c1-ie8.js" ' +
                 'class="bar" type="text/javascript"></script>');
         assert.equal(manager.asset('ie8.js', { attributes: { id: 'foo' }}),
-            '<script src="/asset-b5d5d67465f661c1a12da394e502b391-ie8.js" ' +
+            '<script src="/asset-b5d5d67465f661c1-ie8.js" ' +
                 'class="bar" id="foo" type="text/javascript"></script>');
     });
 
@@ -167,9 +167,9 @@ describe('Tags', function () {
         var manager = setup('simple-assets', { separateBundles: true });
         var tags = manager.asset('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ],
             attributes: { 'class': 'bar' }});
-        var expected = '<script src="/asset-b001d4af398c297f12dbdf05fc33c4cf-html5shiv.js" ' +
+        var expected = '<script src="/asset-b001d4af398c297f-html5shiv.js" ' +
                 'class="bar" type="text/javascript"></script>\n' +
-            '<script src="/asset-0ba08226c3bd0e463b6a9035415d6151-respond.js" ' +
+            '<script src="/asset-0ba08226c3bd0e46-respond.js" ' +
                 'class="bar" type="text/javascript"></script>';
         assert.equal(tags, expected);
     });
@@ -177,11 +177,11 @@ describe('Tags', function () {
     it('should generate separate tags for each asset when using separateBundles (2)', function () {
         var manager = setup('simple-assets', { separateBundles: true });
         var tags = manager.asset('ie8.js', { include: '*.js' });
-        var expected = '<script src="/asset-b001d4af398c297f12dbdf05fc33c4cf-html5shiv.js" ' +
+        var expected = '<script src="/asset-b001d4af398c297f-html5shiv.js" ' +
                 'type="text/javascript"></script>\n' +
-            '<script src="/asset-82470a0982f62504a81cf60128ff61a2-jquery.js" ' +
+            '<script src="/asset-82470a0982f62504-jquery.js" ' +
                 'type="text/javascript"></script>\n' +
-            '<script src="/asset-0ba08226c3bd0e463b6a9035415d6151-respond.js" ' +
+            '<script src="/asset-0ba08226c3bd0e46-respond.js" ' +
                 'type="text/javascript"></script>';
         assert.equal(tags, expected);
     });
