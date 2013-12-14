@@ -201,4 +201,13 @@ describe('Tags', function () {
         assert(had_error, 'Expected an error');
     });
 
+    it('should let users override options when referencing predefined assets', function () {
+        var manager = setup('simple-assets', { hashLength: 6, html5: true });
+        manager.asset('ie8.js', { include: ['html5shiv.js', 'respond.js'] });
+        assert.equal(manager.asset('ie8.js', { attributes: { 'class': 'foo' }}),
+            '<script src="/asset-b5d5d6-ie8.js" class="foo"></script>');
+        assert.equal(manager.asset('ie8.js', { attributes: { 'id': 'foo' }}),
+            '<script src="/asset-b5d5d6-ie8.js" id="foo"></script>');
+    });
+
 });
