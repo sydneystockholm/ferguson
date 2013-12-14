@@ -1,6 +1,6 @@
 **Ferguson** is a highly-configurable asset manager for node.js with the following features
 
-- Asset compilation and compression using whatever framework you like
+- Framework-agnostic compilation and compression
 - Hot-reloading
 - Cache-busting
 - Asset bundles
