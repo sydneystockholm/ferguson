@@ -148,4 +148,39 @@ describe('Tags', function () {
                 'class="bar" id="foo" type="text/javascript"></script>');
     });
 
+    it('should generate separate tags for each asset when using separateBundles', function () {
+        var manager = setup('simple-assets', { separateBundles: true });
+        var tags = manager.asset('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ],
+            attributes: { 'class': 'bar' }});
+        var expected = '<script src="/asset-b001d4af398c297f12dbdf05fc33c4cf-html5shiv.js" ' +
+                'class="bar" type="text/javascript"></script>\n' +
+            '<script src="/asset-0ba08226c3bd0e463b6a9035415d6151-respond.js" ' +
+                'class="bar" type="text/javascript"></script>';
+        assert.equal(tags, expected);
+    });
+
+    it('should generate separate tags for each asset when using separateBundles (2)', function () {
+        var manager = setup('simple-assets', { separateBundles: true });
+        var tags = manager.asset('ie8.js', { include: '*.js' });
+        var expected = '<script src="/asset-b001d4af398c297f12dbdf05fc33c4cf-html5shiv.js" ' +
+                'type="text/javascript"></script>\n' +
+            '<script src="/asset-82470a0982f62504a81cf60128ff61a2-jquery.js" ' +
+                'type="text/javascript"></script>\n' +
+            '<script src="/asset-0ba08226c3bd0e463b6a9035415d6151-respond.js" ' +
+                'type="text/javascript"></script>';
+        assert.equal(tags, expected);
+    });
+
+    it('should emit an error when a bundle can\'t be split into multiple tags', function () {
+        var manager = setup('simple-assets', { separateBundles: true })
+          , had_error = false;
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'No assets matched the pattern "*.missing" ' +
+                'when building asset "ie8.js"');
+            had_error = true;
+        });
+        manager.asset('ie8.js', { include: '*.missing' });
+        assert(had_error, 'Expected an error');
+    });
+
 });
