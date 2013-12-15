@@ -1,3 +1,5 @@
+![Ferguson](ferguson.png)
+
 **Ferguson** is a highly-configurable asset manager for node.js with the following features
 
 - Framework-agnostic compilation and compression
@@ -241,6 +243,11 @@ To run the lint tool
 ```bash
 $ make lint
 ```
+
+## Naming
+
+The name (and logo) is derived from one of the worlds most successful
+football managers, [Sir Alex Ferguson](http://en.wikipedia.org/wiki/Alex_Ferguson).
 
 ## License (MIT)
 
