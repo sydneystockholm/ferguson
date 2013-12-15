@@ -1,5 +1,7 @@
 ![Ferguson](ferguson.png)
 
+---
+
 **Ferguson** is a highly-configurable asset manager for node.js with the following features
 
 - Framework-agnostic compilation and compression
