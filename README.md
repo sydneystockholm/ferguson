@@ -20,7 +20,7 @@ var ferguson = require('ferguson');
 
 var assetManager = ferguson('/path/to/assets', options);
 
-assetManager.init(app);
+assetManager.bind(app);
 ```
 
 Your templates now have access to a view helper
