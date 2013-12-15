@@ -49,7 +49,7 @@ Adding your own formats is easy
 
 ```javascript
 var stylus = require('stylus');
-assetManager.registerCompiler('.styl', '.css', function (str, options, callback) {
+assetManager.registerCompiler('.styl', '.css', function (path, str, options, callback) {
     stylus.render(str, callback);
 });
 ```
@@ -146,7 +146,7 @@ Ferguson does not ship with any compilers since it's trivial to add your own
 
 ```javascript
 var less = require('less');
-assetManager.registerCompiler('.less', '.css', function (str, options, callback) {
+assetManager.registerCompiler('.less', '.css', function (path, str, options, callback) {
     less.render(str, callback);
 });
 ```

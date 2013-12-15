@@ -366,10 +366,12 @@ describe('Middleware', function () {
     });
 
     it('should serve up less assets', function (done) {
+        var assetPath;
         var compilers = {
             '.less': {
                 output: '.css'
-              , compile: function (contents, options, callback) {
+              , compile: function (path, contents, options, callback) {
+                    assetPath = path;
                     less.render(contents, callback);
                 }
             }
@@ -384,6 +386,7 @@ describe('Middleware', function () {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 200);
                 assert.equal(body.trim(), 'body{color:red}');
+                assert.equal(assetPath, path.join(assets, 'foo.less'));
                 next(done);
             });
         });
@@ -393,7 +396,7 @@ describe('Middleware', function () {
         var compilers = {
             '.less': {
                 output: '.css'
-              , compile: function (contents, options, callback) {
+              , compile: function (path, contents, options, callback) {
                     less.render(contents, callback);
                 }
             }
@@ -417,7 +420,7 @@ describe('Middleware', function () {
         var compilers = {
             '.less': {
                 output: '.css'
-              , compile: function (contents, options, callback) {
+              , compile: function (path, contents, options, callback) {
                     less.render(contents, callback);
                 }
             }
@@ -441,7 +444,7 @@ describe('Middleware', function () {
         var compilers = {
             '.less': {
                 output: '.css'
-              , compile: function (contents, options, callback) {
+              , compile: function (path, contents, options, callback) {
                     less.render(contents, callback);
                 }
             }
@@ -501,10 +504,10 @@ describe('Middleware', function () {
     it('should provide helpers for registering compilers and compressors', function (done) {
         var assets = path.join(fixtures, 'less-assets')
           , manager = new Ferguson(assets, { compress: true });
-        manager.registerCompiler('.less', '.css', function (contents, options, callback) {
+        manager.registerCompiler('.less', '.css', function (path, contents, options, callback) {
             callback(new Error('Oops')); //To be replaced
         });
-        manager.registerCompiler('.less', '.css', function (contents, options, callback) {
+        manager.registerCompiler('.less', '.css', function (path, contents, options, callback) {
             less.render(contents, callback);
         });
         manager.registerCompressor('.css', function (contents, options, callback) {
