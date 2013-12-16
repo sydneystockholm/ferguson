@@ -57,16 +57,6 @@ describe('Filenames', function () {
         assert.equal(manager.assetPath('ie8.js'), expected);
     });
 
-    it('should ignore duplicates in the list of assets in a bundle', function () {
-        var manager = setup('simple-assets');
-        var tag = manager.assetPath('ie8.js', { include: [ 'html5shiv.js', 'respond.js' ] });
-        assert.equal(tag, '/asset-b5d5d67465f661c1-ie8.js');
-        tag = manager.assetPath('ie8-b.js', { include: [
-            'respond.js', 'html5shiv.js', 'respond.js', 'respond.js', 'html5shiv.js'
-        ] });
-        assert.equal(tag, '/asset-b5d5d67465f661c1-ie8-b.js');
-    });
-
     it('should require a populated include array when defining asset bundles', function () {
         var manager = setup('simple-assets')
           , had_error = false;
@@ -82,13 +72,13 @@ describe('Filenames', function () {
         var tag = manager.assetPath('all.js', { include: [
             'html5shiv.js', 'respond.js', 'jquery.js'
         ] });
-        assert.equal(tag, '/asset-c919d0e16fda90c5-all.js');
+        assert.equal(tag, '/asset-34f110fda6fe876e-all.js');
         tag = manager.assetPath('all-b.js', { include: '*.js' });
         assert.equal(tag, '/asset-c919d0e16fda90c5-all-b.js');
         tag = manager.assetPath('all-c.js', { include: [
             '{jquery,respond}.js', 'html*.js'
         ] });
-        assert.equal(tag, '/asset-c919d0e16fda90c5-all-c.js');
+        assert.equal(tag, '/asset-fdc69c987470a1a8-all-c.js');
     });
 
     it('should emit an error when a glob pattern doesn\'t match any assets', function () {

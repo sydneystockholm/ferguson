@@ -434,7 +434,7 @@ describe('Middleware', function () {
             request(style, function (err, response, body) {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 200);
-                assert.equal(body.trim(), 'a{color:#00f}body{color:red}');
+                assert.equal(body.trim(), 'body{color:red}a{color:#00f}');
                 next(done);
             });
         });
