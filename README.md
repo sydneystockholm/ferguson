@@ -202,14 +202,22 @@ Alternatively, you could use the `asset.url()` view helper to output the asset U
 <custom-tag src="{{ asset.url('foo.js') }}" />
 ```
 
-## Error Handling
+## Events
 
-The ferguson instance is an event emitter and will emit `error` events when something goes wrong
+The ferguson instance will emit the following events
 
 ```javascript
 assetManager.on('error', function (err) {
-	//handle error
+	// an error occurred
 })
+
+assetManager.on('delete', function (file) {
+    // a stale version of an asset was removed
+});
+
+assetManager.on('change', function (file) {
+    // a change was detected in the specified file
+});
 ```
 
 ## Multi-process Environments
