@@ -226,6 +226,12 @@ assetManager.asset('ie8.js', { include: ['html5shiv.js', 'respond.js'] });
 
 ## Developers
 
+To debug all aspects of the library, run the process with the `DEBUG` env set
+
+```bash
+$ node yourapp.js DEBUG=ferguson
+```
+
 The test suite can be run with
 
 ```bash
