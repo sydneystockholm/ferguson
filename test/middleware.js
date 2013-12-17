@@ -3,6 +3,7 @@ var assert = require('assert')
   , http = require('http')
   , less = require('less')
   , rimraf = require('rimraf')
+  , marked = require('marked')
   , express = require('express')
   , nunjucks = require('nunjucks')
   , fs = require('fs')
@@ -343,8 +344,13 @@ describe('Middleware', function () {
     });
 
     it('should send a 500 when a compressor fails', function (done) {
-        var assets = path.join(fixtures, 'invalid-assets')
-          , manager = new Ferguson(assets, { compress: true });
+        var compressors = {
+            '.css': function (contents, options, callback) {
+                callback(new Error('Oops'));
+            }
+        };
+        var assets = path.join(fixtures, 'simple-assets')
+          , manager = new Ferguson(assets, { compress: true, compressors: compressors });
         mocks(function (app, request, next) {
             manager.bind(app);
             var requestError;
@@ -353,13 +359,13 @@ describe('Middleware', function () {
                 next = next; //-jshint
                 response.send(500);
             });
-            var invalid = manager.assetPath('invalid.js');
+            var invalid = manager.assetPath('style.css');
             rimraf.sync(path.join(assets, invalid));
             request(invalid, function (err, response) {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 500);
                 assert(requestError && requestError.message.indexOf('Failed to compress asset') >= 0,
-                    'Expected an UglifyJS error');
+                    'Expected an error');
                 next(done);
             });
         });
@@ -774,6 +780,136 @@ describe('Middleware', function () {
                     });
                 });
                 fs.renameSync(temp2, css);
+            });
+        });
+    });
+
+    it('should support synchronous compilers', function (done) {
+        var assetPath;
+        var compilers = {
+            '.md': {
+                output: '.html'
+              , compile: function (path, contents) {
+                    assetPath = path;
+                    return marked(contents);
+                }
+            }
+        };
+        var assets = path.join(fixtures, 'markdown-assets')
+          , manager = new Ferguson(assets, { compilers: compilers });
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            var foo = manager.assetPath('foo.md');
+            rimraf.sync(path.join(assets, foo));
+            request(foo, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), '<p>foo <strong>bar</strong></p>');
+                assert.equal(assetPath, path.join(assets, 'foo.md'));
+                next(done);
+            });
+        });
+    });
+
+    it('should send a 500 when a synchronous compiler fails', function (done) {
+        var compilers = {
+            '.md': {
+                output: '.html'
+              , compile: function () {
+                    throw new Error('Oops');
+                }
+            }
+        };
+        var assets = path.join(fixtures, 'markdown-assets')
+          , manager = new Ferguson(assets, { compilers: compilers });
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            var requestError;
+            app.use(function (err, request, response, next) {
+                requestError = err;
+                next = next; //-jshint
+                response.send(500);
+            });
+            var foo = manager.assetPath('foo.md');
+            rimraf.sync(path.join(assets, foo));
+            request(foo, function (err, response) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 500);
+                assert.equal(requestError.message, 'Failed to compile file "foo.md": Oops');
+                next(done);
+            });
+        });
+    });
+
+    it('should support synchronous compressors', function (done) {
+        var compilers = {
+            '.md': {
+                output: '.html'
+              , compile: function (path, contents) {
+                    return marked(contents);
+                }
+            }
+        };
+        var compressors = {
+            '.html': function (str) {
+                return str.replace(/strong/g, 'em');
+            }
+        };
+        var assets = path.join(fixtures, 'markdown-assets')
+          , manager = new Ferguson(assets, {
+                compilers: compilers
+              , compress: true
+              , compressors: compressors
+            });
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            var foo = manager.assetPath('foo.md');
+            rimraf.sync(path.join(assets, foo));
+            request(foo, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), '<p>foo <em>bar</em></p>');
+                next(done);
+            });
+        });
+    });
+
+    it('should send a 500 when a synchronous compressor fails', function (done) {
+        var compilers = {
+            '.md': {
+                output: '.html'
+              , compile: function (path, contents) {
+                    return marked(contents);
+                }
+            }
+        };
+        var compressors = {
+            '.html': function () {
+                throw new Error('Oops');
+            }
+        };
+        var assets = path.join(fixtures, 'markdown-assets')
+          , manager = new Ferguson(assets, {
+                compilers: compilers
+              , compress: true
+              , compressors: compressors
+            });
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            var requestError;
+            app.use(function (err, request, response, next) {
+                requestError = err;
+                next = next; //-jshint
+                response.send(500);
+            });
+            var foo = manager.assetPath('foo.md');
+            rimraf.sync(path.join(assets, foo));
+            request(foo, function (err, response) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 500);
+                assert.equal(requestError.message, 'Failed to compress asset ' +
+                    '"/asset-9f344afaa39f9299-foo.html": Oops');
+                next(done);
             });
         });
     });

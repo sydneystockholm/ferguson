@@ -32,6 +32,7 @@
     "rimraf": "latest",
     "express": "latest",
     "nunjucks": "latest",
-    "less": "latest"
+    "less": "latest",
+    "marked": "latest"
   }
 }
