@@ -171,6 +171,15 @@ A lazy way to specify dependencies is to use a glob pattern that matches everyth
 {{ asset('style.less', { dependencies: '**/*.less' }) }}
 ```
 
+You can also define synchronous compressors by omitting the callback
+
+```javascript
+var marked = require('marked');
+assetManager.registerCompiler('.md', '.html', function (path, str, options) {
+    return marked(str);
+});
+```
+
 ## Compressors
 
 Ferguson ships with a JS minifier ([uglifyjs][uglifyjs]) and CSS compressor ([clean-css][clean-css]) which are both enabled when the `compress` option is true.
@@ -183,6 +192,8 @@ assetManager.registerCompressor('.js', function (str, options, callback) {
     yui.compress(str, options, callback);
 });
 ```
+
+Just like compiler definitions, you can define a synchronous compressor by omitting the callback.
 
 ## Tag Formats
 
