@@ -914,4 +914,20 @@ describe('Middleware', function () {
         });
     });
 
+    it('should provide a view helper for inlining an asset', function (done) {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'));
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            app.get('/', function (request, response) {
+                response.render('{{ asset.inline("style.css") }}');
+            });
+            request('/', function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body, 'body {\n    color: red;\n}\n');
+                next(done);
+            });
+        });
+    });
+
 });

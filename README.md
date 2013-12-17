@@ -8,6 +8,7 @@
 - Hot-reloading
 - Cache-busting
 - Asset bundles
+- Inline assets
 
 ## Overview
 
