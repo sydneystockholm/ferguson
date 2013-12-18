@@ -211,6 +211,8 @@ assetManager.registerInlineFormat('.html', function (contents, options, attribut
 })
 ```
 
+Since asset inlining happens synchronously, you can only use the `inline` option with synchronous compilers and compressors. Attempting to inline an asset that uses either an asynchronous compiler or compressor will fail with an error.
+
 ## Tag Formats
 
 Ferguson knows how to generate HTML tags for `css`, `js`, `ico`, `jpg`, `gif`, `png`, `svg` and `bmp` assets.
