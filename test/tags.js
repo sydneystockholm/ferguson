@@ -2,6 +2,7 @@ var assert = require('assert')
   , path = require('path')
   , format = require('util').format
   , rimraf = require('rimraf')
+  , marked = require('marked')
   , fs = require('fs');
 
 var Ferguson = require('../').Ferguson
@@ -380,6 +381,20 @@ describe('Tags', function () {
             done();
         });
         fs.writeFileSync(html5shiv, 'var qux;');
+    });
+
+    it('should cache inline assets in memory', function () {
+        var manager = new Ferguson(path.join(fixtures, 'markdown-assets'))
+          , compiles = 0;
+        manager.registerCompiler('.md', '.html', function (path, str) {
+            compiles++;
+            return marked(str);
+        });
+        var inline = manager.asset('foo.md', { inline: true });
+        assert.equal(inline, '<p>foo <strong>bar</strong></p>\n');
+        inline = manager.asset('foo.md', { inline: true });
+        assert.equal(inline, '<p>foo <strong>bar</strong></p>\n');
+        assert.equal(compiles, 1);
     });
 
 });
