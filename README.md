@@ -56,8 +56,8 @@ Adding your own formats is easy
 
 ```javascript
 var stylus = require('stylus');
-assetManager.registerCompiler('.styl', '.css', function (path, str, options, callback) {
-    stylus.render(str, callback);
+assetManager.registerCompiler('.styl', '.css', function (path, buffer, options, callback) {
+    stylus.render(buffer.toString(), callback);
 });
 ```
 
@@ -154,8 +154,8 @@ Ferguson does not ship with any compilers since it's trivial to add your own
 
 ```javascript
 var less = require('less');
-assetManager.registerCompiler('.less', '.css', function (path, str, options, callback) {
-    less.render(str, callback);
+assetManager.registerCompiler('.less', '.css', function (path, buffer, options, callback) {
+    less.render(buffer.toString(), callback);
 });
 ```
 
@@ -179,8 +179,8 @@ You can also define synchronous compressors by omitting the callback
 
 ```javascript
 var marked = require('marked');
-assetManager.registerCompiler('.md', '.html', function (path, str, options) {
-    return marked(str);
+assetManager.registerCompiler('.md', '.html', function (path, buffer, options) {
+    return marked(buffer.toString());
 });
 ```
 
@@ -192,8 +192,8 @@ You can add additional compressors or override an existing one
 
 ```javascript
 var yui = require('yuicompressor');
-assetManager.registerCompressor('.js', function (str, options, callback) {
-    yui.compress(str, options, callback);
+assetManager.registerCompressor('.js', function (buffer, options, callback) {
+    yui.compress(buffer.toString(), options, callback);
 });
 ```
 
@@ -206,8 +206,8 @@ You can generate inline assets using `{{ asset(yourAsset, { inline: true }) }}`.
 You can add or override an inline formatter
 
 ```javascript
-assetManager.registerInlineFormat('.html', function (contents, options, attributes) {
-    return '<script type="text/x-template">%s<script>';
+assetManager.registerInlineFormat('.html', function (buffer, options, attributes) {
+    return util.format('<script type="text/x-template">%s<script>', buffer);
 })
 ```
 

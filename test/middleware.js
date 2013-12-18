@@ -324,8 +324,8 @@ describe('Middleware', function () {
 
     it('should support custom compressors', function (done) {
         var compressors = {
-            '.css': function (contents, options, callback) {
-                callback(null, contents.replace(/[\n ]/g, '').replace('red', 'blue'));
+            '.css': function (buffer, options, callback) {
+                callback(null, buffer.toString().replace(/[\n ]/g, '').replace('red', 'blue'));
             }
         };
         var assets = path.join(fixtures, 'simple-assets')
@@ -345,7 +345,7 @@ describe('Middleware', function () {
 
     it('should send a 500 when a compressor fails', function (done) {
         var compressors = {
-            '.css': function (contents, options, callback) {
+            '.css': function (buffer, options, callback) {
                 callback(new Error('Oops'));
             }
         };
@@ -376,9 +376,9 @@ describe('Middleware', function () {
         var compilers = {
             '.less': {
                 output: '.css'
-              , compile: function (path, contents, options, callback) {
+              , compile: function (path, buffer, options, callback) {
                     assetPath = path;
-                    less.render(contents, callback);
+                    less.render(buffer.toString(), callback);
                 }
             }
         };
@@ -402,8 +402,8 @@ describe('Middleware', function () {
         var compilers = {
             '.less': {
                 output: '.css'
-              , compile: function (path, contents, options, callback) {
-                    less.render(contents, callback);
+              , compile: function (path, buffer, options, callback) {
+                    less.render(buffer.toString(), callback);
                 }
             }
         };
@@ -426,8 +426,8 @@ describe('Middleware', function () {
         var compilers = {
             '.less': {
                 output: '.css'
-              , compile: function (path, contents, options, callback) {
-                    less.render(contents, callback);
+              , compile: function (path, buffer, options, callback) {
+                    less.render(buffer.toString(), callback);
                 }
             }
         };
@@ -450,8 +450,8 @@ describe('Middleware', function () {
         var compilers = {
             '.less': {
                 output: '.css'
-              , compile: function (path, contents, options, callback) {
-                    less.render(contents, callback);
+              , compile: function (path, buffer, options, callback) {
+                    less.render(buffer.toString(), callback);
                 }
             }
         };
@@ -510,14 +510,14 @@ describe('Middleware', function () {
     it('should provide helpers for registering compilers and compressors', function (done) {
         var assets = path.join(fixtures, 'less-assets')
           , manager = new Ferguson(assets, { compress: true });
-        manager.registerCompiler('.less', '.css', function (path, contents, options, callback) {
+        manager.registerCompiler('.less', '.css', function (path, buffer, options, callback) {
             callback(new Error('Oops')); //To be replaced
         });
-        manager.registerCompiler('.less', '.css', function (path, contents, options, callback) {
-            less.render(contents, callback);
+        manager.registerCompiler('.less', '.css', function (path, buffer, options, callback) {
+            less.render(buffer.toString(), callback);
         });
-        manager.registerCompressor('.css', function (contents, options, callback) {
-            callback(null, contents.replace(/[\n ]/g, '').replace('body', 'h1'));
+        manager.registerCompressor('.css', function (buffer, options, callback) {
+            callback(null, buffer.toString().replace(/[\n ]/g, '').replace('body', 'h1'));
         });
         mocks(function (app, request, next) {
             manager.bind(app);
@@ -789,9 +789,9 @@ describe('Middleware', function () {
         var compilers = {
             '.md': {
                 output: '.html'
-              , compile: function (path, contents) {
+              , compile: function (path, buffer) {
                     assetPath = path;
-                    return marked(contents);
+                    return marked(buffer.toString());
                 }
             }
         };
@@ -845,14 +845,14 @@ describe('Middleware', function () {
         var compilers = {
             '.md': {
                 output: '.html'
-              , compile: function (path, contents) {
-                    return marked(contents);
+              , compile: function (path, buffer) {
+                    return marked(buffer.toString());
                 }
             }
         };
         var compressors = {
-            '.html': function (str) {
-                return str.replace(/strong/g, 'em');
+            '.html': function (buffer) {
+                return buffer.toString().replace(/strong/g, 'em');
             }
         };
         var assets = path.join(fixtures, 'markdown-assets')
@@ -878,8 +878,8 @@ describe('Middleware', function () {
         var compilers = {
             '.md': {
                 output: '.html'
-              , compile: function (path, contents) {
-                    return marked(contents);
+              , compile: function (path, buffer) {
+                    return marked(buffer.toString());
                 }
             }
         };
@@ -968,8 +968,8 @@ describe('Middleware', function () {
 
     it('should just output the file contents when no inline formatter is available', function (done) {
         var manager = new Ferguson(path.join(fixtures, 'markdown-assets'));
-        manager.registerCompiler('.md', '.html', function (path, str) {
-            return marked(str);
+        manager.registerCompiler('.md', '.html', function (path, buffer) {
+            return marked(buffer.toString());
         });
         mocks(function (app, request, next) {
             manager.bind(app);

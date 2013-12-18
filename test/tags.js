@@ -276,7 +276,7 @@ describe('Tags', function () {
     it('should emit an error when an asset can\'t be inlined because a compiler is async', function () {
         var manager = new Ferguson(path.join(fixtures, 'less-assets'))
           , had_error = false;
-        manager.registerCompiler('.less', '.css', function (path, str, options, callback) {
+        manager.registerCompiler('.less', '.css', function (path, buffer, options, callback) {
             callback();
         });
         manager.on('error', function (err) {
@@ -291,7 +291,7 @@ describe('Tags', function () {
     it('should emit an error when an asset can\'t be inlined because a compressor is async', function () {
         var manager = new Ferguson(path.join(fixtures, 'simple-assets'), { compress: true })
           , had_error = false;
-        manager.registerCompressor('.css', function (str, options, callback) {
+        manager.registerCompressor('.css', function (buffer, options, callback) {
             callback();
         });
         manager.on('error', function (err) {
@@ -334,8 +334,8 @@ describe('Tags', function () {
 
     it('should let users define custom inline formatters', function () {
         var manager = setup('simple-assets', { compress: true });
-        manager.registerInlineFormat('.js', function (contents) {
-            return format('<foo>%s</foo>', contents);
+        manager.registerInlineFormat('.js', function (buffer) {
+            return format('<foo>%s</foo>', buffer);
         });
         assert.equal(manager.asset('jquery.js', { inline: true }),
             '<foo>window.jQuery={};</foo>');
@@ -386,9 +386,9 @@ describe('Tags', function () {
     it('should cache inline assets in memory', function () {
         var manager = new Ferguson(path.join(fixtures, 'markdown-assets'))
           , compiles = 0;
-        manager.registerCompiler('.md', '.html', function (path, str) {
+        manager.registerCompiler('.md', '.html', function (path, buffer) {
             compiles++;
-            return marked(str);
+            return marked(buffer.toString());
         });
         var inline = manager.asset('foo.md', { inline: true });
         assert.equal(inline, '<p>foo <strong>bar</strong></p>\n');
