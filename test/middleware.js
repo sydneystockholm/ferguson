@@ -985,4 +985,22 @@ describe('Middleware', function () {
         });
     });
 
+    it('should create directories if necessary when writing compiled files', function (done) {
+        rimraf.sync(temp);
+        fs.mkdirSync(temp);
+        var jqueryPath = path.join(temp, 'jquery.js');
+        fs.writeFileSync(jqueryPath, 'var foo');
+        var manager = new Ferguson(temp);
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            var jquery = manager.assetPath('some/nested/file.js', { include: [ 'jquery.js' ] });
+            request(jquery, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body, 'var foo');
+                next(done);
+            });
+        });
+    });
+
 });
