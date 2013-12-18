@@ -212,6 +212,19 @@ describe('Middleware', function () {
         });
     });
 
+    it('should 404 on hash mismatch', function (done) {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'));
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            manager.assetPath('jquery.js');
+            request('/asset-82470a0982-jquery.js', function (err, response) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 404);
+                next(done);
+            });
+        });
+    });
+
     it('should compile and serve a single file asset', function (done) {
         var assets = path.join(fixtures, 'simple-assets')
           , manager = new Ferguson(assets);
