@@ -340,4 +340,46 @@ describe('Tags', function () {
             '<foo>window.jQuery={};</foo>');
     });
 
+    it('should update inline assets when a change is detected', function (done) {
+        rimraf.sync(temp);
+        fs.mkdirSync(temp);
+        var jquery = path.join(temp, 'jquery.js');
+        fs.writeFileSync(jquery, 'var foo');
+        var manager = new Ferguson(temp, {
+            hotReload: true
+        });
+        var inline = manager.assetInline('jquery.js');
+        assert.equal(inline, 'var foo');
+        manager.on('change', function (file) {
+            if (file !== 'jquery.js') return;
+            inline = manager.assetInline('jquery.js');
+            assert.equal(inline, 'var bar');
+            manager.destroy();
+            done();
+        });
+        fs.writeFileSync(jquery, 'var bar');
+    });
+
+    it('should update inline assets when a change is detected in a bundled asset', function (done) {
+        rimraf.sync(temp);
+        fs.mkdirSync(temp);
+        var jquery = path.join(temp, 'jquery.js')
+          , html5shiv = path.join(temp, 'html5shiv.js');
+        fs.writeFileSync(jquery, 'var foo;');
+        fs.writeFileSync(html5shiv, 'var bar;');
+        var manager = new Ferguson(temp, {
+            hotReload: true
+        });
+        var inline = manager.assetInline('foo.js', { include: [ 'jquery.js', 'html5shiv.js' ] });
+        assert.equal(inline, 'var foo;var bar;');
+        manager.on('change', function (file) {
+            if (file !== 'html5shiv.js') return;
+            inline = manager.assetInline('foo.js');
+            assert.equal(inline, 'var foo;var qux;');
+            manager.destroy();
+            done();
+        });
+        fs.writeFileSync(html5shiv, 'var qux;');
+    });
+
 });
