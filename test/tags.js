@@ -334,7 +334,7 @@ describe('Tags', function () {
 
     it('should let users define custom inline formatters', function () {
         var manager = setup('simple-assets', { compress: true });
-        manager.registerInlineFormat('.js', function (buffer) {
+        manager.registerInlineFormat('.js', function (filename, buffer) {
             return format('<foo>%s</foo>', buffer);
         });
         assert.equal(manager.asset('jquery.js', { inline: true }),
@@ -395,6 +395,13 @@ describe('Tags', function () {
         inline = manager.asset('foo.md', { inline: true });
         assert.equal(inline, '<p>foo <strong>bar</strong></p>\n');
         assert.equal(compiles, 1);
+    });
+
+    it('should create base64-encoded inline images', function () {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'));
+        var inline = manager.asset('1x1.gif', { inline: true });
+        assert.equal(inline, '<img src="data:image/gif;base64,R0lGODlhAQABAIABAP8AAP' +
+            '///yH5BAEAAAEALAAAAAABAAEAAAICRAEAOw==" />');
     });
 
 });

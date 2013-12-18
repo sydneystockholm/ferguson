@@ -61,7 +61,7 @@ assetManager.registerCompiler('.styl', '.css', function (path, buffer, options, 
 });
 ```
 
-Now you can call `asset('css/foo.styl')` to generate a `<link>` tag that references a compiled CSS asset.
+Now you can call `asset('css/foo.styl')` to render an asset with [stylus][stylus].
 
 ## Options
 
@@ -127,7 +127,7 @@ var assetManager = ferguson('/path/to/assets');
 assetManager.asset('ie8.js', { include: ['html5shiv.js', 'respond.js'] });
 ```
 
-Once defined, assets can be referenced by name, i.e. you don't need to specify the options each time
+Once defined, assets can be referenced by name
 
 ```html
 {{ asset('ie8.js') }}
@@ -201,14 +201,39 @@ Just like compiler definitions, you can define a synchronous compressor by omitt
 
 ## Inline assets
 
-You can generate inline assets using `{{ asset(yourAsset, { inline: true }) }}`. Ferguson will wrap Javascript in a `<script>` tag and CSS in a `<style>` tag and will output all other inline assets as-is.
+You can generate inline assets using `{{ asset(yourAsset, { inline: true }) }}`.
+
+Ferguson will wrap Javascript in a `<script>` tag, wrap CSS in a `<style>` tag and base64-encode and inline images into an `<img>` tag. It will output all other assets as-is.
 
 You can add or override an inline formatter
 
 ```javascript
-assetManager.registerInlineFormat('.html', function (buffer, options, attributes) {
+assetManager.registerInlineFormat('.html', function (filename, buffer, options, attributes) {
     return util.format('<script type="text/x-template">%s<script>', buffer);
 })
+```
+
+Since the inline formatters have access to the binary contents of the asset, the following is possible
+
+```javascript
+var mime = require('mime');
+assetManager.registerInlineFormat(imageExt, function (filename, buffer, options, attributes) {
+    return util.format('<img src="data:%s;base64,%s" />',
+        mime.lookup(filename),
+        buffer.toString('base64'));
+});
+```
+
+The following call
+
+```html
+{{ asset('1x1.gif', { inline: true }) }}
+```
+
+would output the following
+
+```html
+<img src="data:image/gif;base64,R0lGODlhAQABAIABAP8AAP///yH5BAEAAAEALAAAAAABAAEAAAICRAEAOw==" />
 ```
 
 Since asset inlining happens synchronously, you can only use the `inline` option with synchronous compilers and compressors. Attempting to inline an asset that uses either an asynchronous compiler or compressor will fail with an error.
@@ -324,3 +349,4 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 [cluster]: http://nodejs.org/api/cluster.html
 [less]: https://github.com/less/less.js/
 [browserify]: https://github.com/substack/node-browserify
+[stylus]: http://learnboost.github.io/stylus/
