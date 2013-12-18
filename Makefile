@@ -10,9 +10,8 @@ lint: dependencies
 
 dependencies:
 	@if [ ! -d node_modules ]; then \
-		echo -n "Installing dependencies.."; \
-		npm install --silent >/dev/null; \
-		echo "done."; \
+		echo "Installing dependencies.."; \
+		npm install --silent; \
 	fi
 
 coverage: dependencies
