@@ -1003,4 +1003,48 @@ describe('Middleware', function () {
         });
     });
 
+    it('should let synchronous compressors return a buffer', function (done) {
+        var compressors = {
+            '.css': function (buffer) {
+                var compressed = buffer.toString().replace(/[\n ]/g, '').replace('red', 'blue');
+                return new Buffer(compressed);
+            }
+        };
+        var assets = path.join(fixtures, 'simple-assets')
+          , manager = new Ferguson(assets, { compress: true, compressors: compressors });
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            var style = manager.assetPath('style.css');
+            rimraf.sync(path.join(assets, style));
+            request(style, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'body{color:blue;}');
+                next(done);
+            });
+        });
+    });
+
+    it('should let asynchronous compressors return a buffer', function (done) {
+        var compressors = {
+            '.css': function (buffer, options, callback) {
+                var compressed = buffer.toString().replace(/[\n ]/g, '').replace('red', 'blue');
+                callback(null, new Buffer(compressed));
+            }
+        };
+        var assets = path.join(fixtures, 'simple-assets')
+          , manager = new Ferguson(assets, { compress: true, compressors: compressors });
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            var style = manager.assetPath('style.css');
+            rimraf.sync(path.join(assets, style));
+            request(style, function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body.trim(), 'body{color:blue;}');
+                next(done);
+            });
+        });
+    });
+
 });

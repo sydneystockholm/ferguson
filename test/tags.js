@@ -404,4 +404,16 @@ describe('Tags', function () {
             '///yH5BAEAAAEALAAAAAABAAEAAAICRAEAOw==" />');
     });
 
+    it('should allow synchronous compressors to return a buffer', function () {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'), {
+            compress: true
+          , html5: true
+        });
+        manager.registerCompressor('.css', function () {
+            return new Buffer('foo');
+        });
+        var inline = manager.asset('style.css', { inline: true });
+        assert.equal(inline, '<style>foo</style>');
+    });
+
 });
