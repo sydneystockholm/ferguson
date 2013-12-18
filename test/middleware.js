@@ -930,4 +930,59 @@ describe('Middleware', function () {
         });
     });
 
+    it('should inline css using a <style> tag', function (done) {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'), {
+            compress: true
+        });
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            app.get('/', function (request, response) {
+                response.render('{{ asset("style.css", { inline: true }) }}');
+            });
+            request('/', function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body, '<style type="text/css">body{color:red}</style>');
+                next(done);
+            });
+        });
+    });
+
+    it('should inline js using a <script> tag', function (done) {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'), {
+            compress: true
+        });
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            app.get('/', function (request, response) {
+                response.render('{{ asset("jquery.js", { inline: true }) }}');
+            });
+            request('/', function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body, '<script type="text/javascript">window.jQuery={};</script>');
+                next(done);
+            });
+        });
+    });
+
+    it('should just output the file contents when no inline formatter is available', function (done) {
+        var manager = new Ferguson(path.join(fixtures, 'markdown-assets'));
+        manager.registerCompiler('.md', '.html', function (path, str) {
+            return marked(str);
+        });
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            app.get('/', function (request, response) {
+                response.render('{{ asset("foo.md", { inline: true }) }}');
+            });
+            request('/', function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body, '<p>foo <strong>bar</strong></p>\n');
+                next(done);
+            });
+        });
+    });
+
 });

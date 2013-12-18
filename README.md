@@ -35,6 +35,7 @@ Your templates now have access to a view helper
 <!--[if lt IE 9]>
   {{ asset('js/ie8.js', { include: ['js/html5shiv.js', 'js/respond.js'] });
 <![endif]-->
+{{ asset('js/smallFile.js', { inline: true }) }}
 {{ asset('css/styles.less') }}
 ```
 
@@ -45,6 +46,7 @@ which generates something like
 <!--[if lt IE 9]>
   <script src="/js/asset-0ba08226c3bd0e46-ie8.js" type="text/javascript"></script>
 <![endif]-->
+<script type="text/javascript">var foo = "bar";</script>
 <link rel="stylesheet" href="/css/asset-b5d5d67465f661c1-styles.css" />
 ```
 
@@ -96,6 +98,7 @@ The following options are available when defining an asset with `asset(file, opt
 - **urlPrefix** - prefix the asset URL with this. This overrides the library's `urlPrefix` option.
 - **attributes** - an object containing additional HTML attributes.
 - **dependencies** - one or more files that ferguson should take into account when generating cache-busting hashes (see the Compilers section below for an explanation). Glob is supported.
+- **inline** - whether to inline the asset instead of referencing an external resource
 
 Here's an example definition
 
@@ -195,6 +198,18 @@ assetManager.registerCompressor('.js', function (str, options, callback) {
 ```
 
 Just like compiler definitions, you can define a synchronous compressor by omitting the callback.
+
+## Inline assets
+
+You can generate inline assets using `{{ asset(yourAsset, { inline: true }) }}`. Ferguson will wrap Javascript in a `<script>` tag and CSS in a `<style>` tag and will output all other inline assets as-is.
+
+You can add or override an inline formatter
+
+```javascript
+assetManager.registerInlineFormat('.html', function (contents, options, attributes) {
+    return '<script type="text/x-template">%s<script>';
+})
+```
 
 ## Tag Formats
 

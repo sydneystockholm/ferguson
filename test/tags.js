@@ -1,9 +1,12 @@
 var assert = require('assert')
   , path = require('path')
-  , format = require('util').format;
+  , format = require('util').format
+  , rimraf = require('rimraf')
+  , fs = require('fs');
 
 var Ferguson = require('../').Ferguson
-  , fixtures = path.join(__dirname, 'fixtures');
+  , fixtures = path.join(__dirname, 'fixtures')
+  , temp = path.join(__dirname, 'tmp');
 
 function setup(directory, options) {
     return new Ferguson(path.join(fixtures, directory), options);
@@ -62,7 +65,7 @@ describe('Tags', function () {
 
     it('should provide a helper for defining custom tag formats', function () {
         var manager = setup('simple-assets', { hashLength: 6 });
-        manager.registerTag('.txt', function (url) {
+        manager.registerTagFormat('.txt', function (url) {
             return format('<custom src="%s" />', url);
         });
         assert.equal(manager.asset('robots.txt'), '<custom src="/asset-74be16-robots.txt" />');
@@ -70,7 +73,7 @@ describe('Tags', function () {
 
     it('should normalise the extname when defining custom tags', function () {
         var manager = setup('simple-assets', { hashLength: 6 });
-        manager.registerTag('TXT', function (url) {
+        manager.registerTagFormat('TXT', function (url) {
             return format('<custom src="%s" />', url);
         });
         assert.equal(manager.asset('robots.txt'), '<custom src="/asset-74be16-robots.txt" />');
@@ -205,6 +208,136 @@ describe('Tags', function () {
             '<script src="/asset-b5d5d6-ie8.js" class="foo"></script>');
         assert.equal(manager.asset('ie8.js', { attributes: { 'id': 'foo' }}),
             '<script src="/asset-b5d5d6-ie8.js" id="foo"></script>');
+    });
+
+    it('should omit inline type attributes in html5 mode', function () {
+        var manager = setup('simple-assets', { html5: true, compress: true });
+        assert.equal(manager.asset('style.css', { inline: true }),
+            '<style>body{color:red}</style>');
+        assert.equal(manager.asset('jquery.js', { inline: true }),
+            '<script>window.jQuery={};</script>');
+    });
+
+    it('should separate bundles when using inline and separateBundles', function () {
+        var manager = setup('simple-assets', { html5: true, compress: true, separateBundles: true });
+        var html = manager.asset('jquery.js', { inline: true, include: ['html5shiv.js', 'respond.js'] });
+        assert.equal(html, '<script>window.shiv={};</script>\n<script>window.respond={};</script>');
+    });
+
+    it('should wrap inline assets in an IIFE when using wrapJavascript', function () {
+        var manager = setup('simple-assets', { html5: true, compress: true, wrapJavascript: true });
+        var html = manager.asset('jquery.js', { inline: true, attributes: { 'class': 'foo' } });
+        assert.equal(html, '<script class="foo">!function(){window.jQuery={}}();</script>');
+    });
+
+    it('should emit an error when a read error occurs while inlining', function () {
+        rimraf.sync(temp);
+        fs.mkdirSync(temp);
+        var jqueryPath = path.join(temp, 'jquery.js');
+        fs.writeFileSync(jqueryPath, 'var foo');
+        var manager = new Ferguson(temp)
+          , had_error = false;
+        manager.init();
+        //Let's be pathological and replace jquery.js with a directory
+        fs.unlinkSync(jqueryPath);
+        fs.mkdirSync(jqueryPath);
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'Failed to read file "jquery.js": ' +
+                'EISDIR, illegal operation on a directory');
+            had_error = true;
+        });
+        manager.asset('jquery.js', { inline: true });
+        assert(had_error, 'Expected an error');
+    });
+
+    it('should emit an error when an asset can\'t be inlined because it doesn\'t exist', function () {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'))
+          , had_error = false;
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'Asset "unknown.js" could not be found');
+            had_error = true;
+        });
+        assert.equal(manager.asset('unknown.js', { inline: true }), '');
+        assert(had_error, 'Expected an error');
+    });
+
+    it('should emit an error when an asset can\'t be inlined because it doesn\'t exist (2)', function () {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'))
+          , had_error = false;
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'Asset "unknown.js" could not be found');
+            had_error = true;
+        });
+        assert.equal(manager.assetInline('unknown.js'), '');
+        assert(had_error, 'Expected an error');
+    });
+
+    it('should emit an error when an asset can\'t be inlined because a compiler is async', function () {
+        var manager = new Ferguson(path.join(fixtures, 'less-assets'))
+          , had_error = false;
+        manager.registerCompiler('.less', '.css', function (path, str, options, callback) {
+            callback();
+        });
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'Cannot compile "foo.less" synchronously because ' +
+                'the .less compiler is async');
+            had_error = true;
+        });
+        assert.equal(manager.assetInline('foo.css'), '');
+        assert(had_error, 'Expected an error');
+    });
+
+    it('should emit an error when an asset can\'t be inlined because a compressor is async', function () {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'), { compress: true })
+          , had_error = false;
+        manager.registerCompressor('.css', function (str, options, callback) {
+            callback();
+        });
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'Cannot compress "/asset-688f09569f1e9594-style.css" ' +
+                'synchronously because the .css compressor is async');
+            had_error = true;
+        });
+        assert.equal(manager.assetInline('style.css'), '');
+        assert(had_error, 'Expected an error');
+    });
+
+    it('should emit an error when an asset can\'t be inlined because a compiler fails', function () {
+        var manager = new Ferguson(path.join(fixtures, 'less-assets'))
+          , had_error = false;
+        manager.registerCompiler('.less', '.css', function () {
+            throw new Error('Oops');
+        });
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'Failed to compile file "foo.less": Oops');
+            had_error = true;
+        });
+        assert.equal(manager.assetInline('foo.css'), '');
+        assert(had_error, 'Expected an error');
+    });
+
+    it('should emit an error when an asset can\'t be inlined because a compressor fails', function () {
+        var manager = new Ferguson(path.join(fixtures, 'simple-assets'), { compress: true })
+          , had_error = false;
+        manager.registerCompressor('.css', function () {
+            throw new Error('Oops');
+        });
+        manager.on('error', function (err) {
+            assert.equal(err.message, 'Failed to compress asset ' +
+                '"/asset-688f09569f1e9594-style.css": Oops');
+            had_error = true;
+        });
+        assert.equal(manager.assetInline('style.css'), '');
+        assert(had_error, 'Expected an error');
+    });
+
+    it('should let users define custom inline formatters', function () {
+        var manager = setup('simple-assets', { compress: true });
+        manager.registerInlineFormat('.js', function (contents) {
+            return format('<foo>%s</foo>', contents);
+        });
+        assert.equal(manager.asset('jquery.js', { inline: true }),
+            '<foo>window.jQuery={};</foo>');
     });
 
 });
