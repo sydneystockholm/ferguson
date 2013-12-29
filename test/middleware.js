@@ -798,18 +798,13 @@ describe('Middleware', function () {
     });
 
     it('should support synchronous compilers', function (done) {
-        var assetPath;
-        var compilers = {
-            '.md': {
-                output: '.html'
-              , compile: function (path, buffer) {
-                    assetPath = path;
-                    return marked(buffer.toString());
-                }
-            }
-        };
         var assets = path.join(fixtures, 'markdown-assets')
-          , manager = new Ferguson(assets, { compilers: compilers });
+          , manager = new Ferguson(assets)
+          , assetPath;
+        manager.registerCompiler('.md', '.html', function (path, buffer) {
+            assetPath = path;
+            return marked(buffer.toString());
+        });
         mocks(function (app, request, next) {
             manager.bind(app);
             var foo = manager.assetPath('foo.md');
