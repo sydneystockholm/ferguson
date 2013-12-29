@@ -1,6 +1,6 @@
 {
   "name": "ferguson",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "An asset manager",
   "keywords": [ "asset", "assets", "bundle", "static", "compiler",
     "compressor", "minifier" ],
