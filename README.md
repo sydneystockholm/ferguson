@@ -246,7 +246,7 @@ You can add and override tag formats if necessary
 
 ```javascript
 assetManager.registerTagFormat('.js', function (url, options, attributes) {
-    return '<custom-tag src="' + url + '" />';
+    return util.format('<custom-tag src="%s" />', url);
 })
 ```
 
