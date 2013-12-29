@@ -98,7 +98,7 @@ The following options are available when defining an asset with `asset(file, opt
 - **urlPrefix** - prefix the asset URL with this. This overrides the library's `urlPrefix` option.
 - **attributes** - an object containing additional HTML attributes.
 - **dependencies** - one or more files that ferguson should take into account when generating cache-busting hashes (see the Compilers section below for an explanation). Glob is supported.
-- **inline** - whether to inline the asset instead of referencing an external resource
+- **inline** - whether to inline the asset instead of referencing an external resource.
 
 Here's an example definition
 
@@ -146,6 +146,12 @@ If your static assets live in a folder named `static` then you might want to add
 ```
 static/.asset-manifest
 static/**/asset-*
+```
+
+For assets that don't change very often, e.g. favicons, you can omit the cache busting hash entirely by building your own asset URL
+
+```html
+<link rel="shortcut icon" href="{{ asset.prefix }}favicon.ico" />
 ```
 
 ## Compilers

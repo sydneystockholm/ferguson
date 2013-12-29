@@ -1055,4 +1055,41 @@ describe('Middleware', function () {
         });
     });
 
+    it('should provide a view helper that outputs the asset url prefix', function (done) {
+        var manager = new Ferguson(path.join(fixtures, 'empty'), {
+            urlPrefix: 'http://example.com'
+        });
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            app.get('/', function (request, response) {
+                response.render('{{ asset.prefix }}');
+            });
+            request('/', function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body, 'http://example.com/');
+                next(done);
+            });
+        });
+    });
+
+    it('should provide a view helper that outputs the asset url prefix (2)', function (done) {
+        var manager = new Ferguson(path.join(fixtures, 'empty'), {
+            urlPrefix: 'http://example.com/'
+          , servePrefix: '/foobar'
+        });
+        mocks(function (app, request, next) {
+            manager.bind(app);
+            app.get('/', function (request, response) {
+                response.render('{{ asset.prefix }}');
+            });
+            request('/', function (err, response, body) {
+                assert.ifError(err);
+                assert.equal(response.statusCode, 200);
+                assert.equal(body, 'http://example.com/foobar/');
+                next(done);
+            });
+        });
+    });
+
 });
