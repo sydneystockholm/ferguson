@@ -34,7 +34,7 @@
     "jshint": "latest",
     "rimraf": "latest",
     "nunjucks": "latest",
-    "less": "latest",
+    "less": "~ 2.4",
     "marked": "latest"
   }
 }

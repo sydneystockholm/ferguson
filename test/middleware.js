@@ -53,6 +53,9 @@ function mocks(callback) {
     });
 }
 
+function lessCompiler() {
+
+}
 describe('Middleware', function () {
 
     it('should provide express middleware', function (done) {
@@ -391,7 +394,9 @@ describe('Middleware', function () {
                 output: '.css'
               , compile: function (path, buffer, options, callback) {
                     assetPath = path;
-                    less.render(buffer.toString(), callback);
+                    less.render(buffer.toString(), function(err, compiled) {
+                        callback(err, compiled.css);
+                    });
                 }
             }
         };
@@ -416,7 +421,9 @@ describe('Middleware', function () {
             '.less': {
                 output: '.css'
               , compile: function (path, buffer, options, callback) {
-                    less.render(buffer.toString(), callback);
+                    less.render(buffer.toString(), function(err, compiled) {
+                        callback(err, compiled.css);
+                    });
                 }
             }
         };
@@ -440,7 +447,9 @@ describe('Middleware', function () {
             '.less': {
                 output: '.css'
               , compile: function (path, buffer, options, callback) {
-                    less.render(buffer.toString(), callback);
+                    less.render(buffer.toString(), function(err, compiled) {
+                        callback(err, compiled.css);
+                    });
                 }
             }
         };
@@ -464,7 +473,10 @@ describe('Middleware', function () {
             '.less': {
                 output: '.css'
               , compile: function (path, buffer, options, callback) {
-                    less.render(buffer.toString(), callback);
+                    less.render(buffer.toString(), function(err, compiled) {
+                        var content = err ? compiled : compiled.css;
+                        callback(err, content);
+                    });
                 }
             }
         };
@@ -527,7 +539,9 @@ describe('Middleware', function () {
             callback(new Error('Oops')); //To be replaced
         });
         manager.registerCompiler('.less', '.css', function (path, buffer, options, callback) {
-            less.render(buffer.toString(), callback);
+            less.render(buffer.toString(), function(err, compiled) {
+                return callback(err, compiled.css);
+            });
         });
         manager.registerCompressor('.css', function (buffer, options, callback) {
             callback(null, buffer.toString().replace(/[\n ]/g, '').replace('body', 'h1'));
@@ -539,7 +553,7 @@ describe('Middleware', function () {
             request(style, function (err, response, body) {
                 assert.ifError(err);
                 assert.equal(response.statusCode, 200);
-                assert.equal(body.trim(), 'h1{color:#ff0000;}');
+                assert.equal(body.trim(), 'h1{color:red;}');
                 next(done);
             });
         });
