@@ -245,8 +245,7 @@ describe('Tags', function () {
         fs.unlinkSync(jqueryPath);
         fs.mkdirSync(jqueryPath);
         manager.on('error', function (err) {
-            assert.equal(err.message, 'Failed to read file "jquery.js": ' +
-                'EISDIR, illegal operation on a directory');
+            assert(err.message.indexOf('EISDIR') > -1);
             had_error = true;
         });
         manager.asset('jquery.js', { inline: true });
