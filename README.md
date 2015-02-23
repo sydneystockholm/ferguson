@@ -10,6 +10,8 @@
 - Asset bundles
 - Inline assets
 
+[![Build Status](https://travis-ci.org/sydneystockholm/ferguson.svg)](https://travis-ci.org/sydneystockholm/ferguson)
+
 ## Overview
 
 Install the library with npm
