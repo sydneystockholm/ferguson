@@ -78,6 +78,7 @@ The following options are available when creating a new ferguson instance with `
 - **wrapJavascript** (default: `false`) - whether to wrap compiled JS in an IIFE.
 - **separateBundles** (default: `false`) - generate separate tags for each asset in a bundle.
 - **html5** (default: `false`) - generate HTML5-compatible tags, e.g. omit the *type* attribute from a `<script>` tag.
+- **outputDir** (default to `dir`) - the path to put and serve the compiled files from.
 
 The following setup is recommended
 
