@@ -254,7 +254,8 @@ describe('Middleware', function () {
             app.use(function (err, request, response, next) {
                 requestError = err;
                 next = next; //-jshint
-                response.send(500);
+                response.status(500);
+                response.send();
             });
             //Let's be pathological and replace jquery.js with a directory
             fs.unlinkSync(jqueryPath);
@@ -370,7 +371,8 @@ describe('Middleware', function () {
             app.use(function (err, request, response, next) {
                 requestError = err;
                 next = next; //-jshint
-                response.send(500);
+                response.status(500);
+                response.send();
             });
             var invalid = manager.assetPath('style.css');
             rimraf.sync(path.join(assets, invalid));
@@ -485,7 +487,8 @@ describe('Middleware', function () {
             app.use(function (err, request, response, next) {
                 requestError = err;
                 next = next; //-jshint
-                response.send(500);
+                response.status(500);
+                response.send();
             });
             var style = manager.assetPath('invalid.css');
             rimraf.sync(path.join(assets, style));
@@ -618,7 +621,8 @@ describe('Middleware', function () {
             app.use(function (err, request, response, next) {
                 requestErrors.push(err);
                 next = next; //-jshint
-                response.send(500);
+                response.status(500);
+                response.send();
             });
             var jquery = manager.assetPath('invalid.js');
             rimraf.sync(path.join(assets, jquery));
@@ -847,7 +851,8 @@ describe('Middleware', function () {
             app.use(function (err, request, response, next) {
                 requestError = err;
                 next = next; //-jshint
-                response.send(500);
+                response.status(500);
+                response.send();
             });
             var foo = manager.assetPath('foo.md');
             rimraf.sync(path.join(assets, foo));
@@ -919,7 +924,8 @@ describe('Middleware', function () {
             app.use(function (err, request, response, next) {
                 requestError = err;
                 next = next; //-jshint
-                response.send(500);
+                response.status(500);
+                response.send();
             });
             var foo = manager.assetPath('foo.md');
             rimraf.sync(path.join(assets, foo));
